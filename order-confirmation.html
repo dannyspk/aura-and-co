@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Aura & Co</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="/">
+                        <h1>Aura & Co</h1>
+                        <p class="tagline">Timeless Elegance</p>
+                    </a>
+                </div>
+                <nav class="nav">
+                    <a href="/">Home</a>
+                    <a href="/shop">Shop</a>
+                    <a href="#about">About</a>
+                    <a href="#contact">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Confirmation Content -->
+    <main class="confirmation-page">
+        <div class="container">
+            <div class="confirmation-card">
+                <div class="confirmation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1>Thank You for Your Order!</h1>
+                <p class="confirmation-subtitle">Your order has been successfully placed</p>
+                
+                <div class="order-number">
+                    <strong>Order Number:</strong> <span id="orderNumber">—</span>
+                </div>
+                
+                <div class="confirmation-message">
+                    <p>A confirmation email has been sent to <strong id="customerEmail">—</strong></p>
+                    <p>We'll notify you when your order ships.</p>
+                </div>
+
+                <div class="order-details-card">
+                    <h2>Order Details</h2>
+                    <div id="orderItems" class="order-items-list"></div>
+                    
+                    <div class="order-totals">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span id="orderSubtotal">$0.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Shipping</span>
+                            <span id="orderShipping">FREE</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tax</span>
+                            <span id="orderTax">$0.00</span>
+                        </div>
+                        <div class="total-divider"></div>
+                        <div class="total-row total-final">
+                            <span>Total</span>
+                            <span id="orderTotal">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shipping-info-card">
+                    <h3>Shipping Address</h3>
+                    <div id="shippingAddress"></div>
+                </div>
+
+                <div class="confirmation-actions">
+                    <a href="/shop" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Continue Shopping
+                    </a>
+                    <button class="btn-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Confirmation
+                    </button>
+                </div>
+
+                <div class="next-steps">
+                    <h3>What's Next?</h3>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <i class="fas fa-envelope"></i>
+                            <h4>Check Your Email</h4>
+                            <p>Order confirmation sent to your inbox</p>
+                        </div>
+                        <div class="step-card">
+                            <i class="fas fa-box"></i>
+                            <h4>We'll Prepare Your Order</h4>
+                            <p>Carefully packaged with love</p>
+                        </div>
+                        <div class="step-card">
+                            <i class="fas fa-shipping-fast"></i>
+                            <h4>Track Your Shipment</h4>
+                            <p>Tracking number sent when shipped</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About Aura & Co</h4>
+                    <p>Crafting timeless jewelry pieces that celebrate life's precious moments.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="/shop">All Jewelry</a></li>
+                        <li><a href="/shop?category=rings">Rings</a></li>
+                        <li><a href="/shop?category=necklaces">Necklaces</a></li>
+                        <li><a href="/shop?category=earrings">Earrings</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Care</h4>
+                    <ul>
+                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="#shipping">Shipping Info</a></li>
+                        <li><a href="#returns">Returns & Exchanges</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Stay Connected</h4>
+                    <p>Subscribe to our newsletter for exclusive offers</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email">
+                        <button type="submit"><i class="fas fa-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Aura & Co. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/order-confirmation.js"></script>
+</body>
+</html>
