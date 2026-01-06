@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping & Returns - Aura & Co</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar {
+            padding: 0;
+        }
+
+        .nav-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #7d6c4e;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .logo:hover {
+            color: #c9a66b;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #c9a66b;
+        }
+
+        .nav-menu a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #c9a66b;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            border-radius: 5px;
+            padding: 10px 0;
+            min-width: 200px;
+            margin-top: 10px;
+            list-style: none;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu li {
+            padding: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background: #f7f2ea;
+            color: #c9a66b;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-icon {
+            color: #333;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-icon:hover {
+            color: #c9a66b;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #c9a66b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #f7f2ea;
+            padding: 3em 5vw 1em 5vw;
+            color: #222;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto 2em auto;
+            gap: 3em;
+        }
+
+        .footer-logo h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin: 0 0 0.3em 0;
+            letter-spacing: 0.08em;
+        }
+
+        .footer-logo p {
+            font-size: 0.95rem;
+            color: #7d6c4e;
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8em;
+        }
+
+        .footer-links h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+        }
+
+        .footer-links a {
+            color: #444;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: #7d6c4e;
+        }
+
+        .footer-social {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        .footer-social h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+        }
+
+        .footer-social-icons {
+            display: flex;
+            gap: 1em;
+        }
+
+        .footer-social-icons .icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .footer-social-icons a:hover .icon {
+            opacity: 1;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            color: #7d6c4e;
+            font-size: 0.9rem;
+            padding-top: 2em;
+            border-top: 1px solid #ddd;
+        }
+
+        /* Shipping Page Styles */
+        .page-header {
+            background: linear-gradient(135deg, #7d6c4e 0%, #a89176 100%);
+            padding: 100px 0 60px;
+            text-align: center;
+            color: white;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .policy-container {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .policy-section {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .policy-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #7d6c4e;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .policy-section h2 i {
+            color: #c9a66b;
+            font-size: 1.8rem;
+        }
+
+        .policy-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #7d6c4e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .policy-section p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #5a5a5a;
+            margin-bottom: 15px;
+        }
+
+        .policy-section ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 20px;
+        }
+
+        .policy-section ul li {
+            padding: 12px 0;
+            padding-left: 35px;
+            position: relative;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #5a5a5a;
+        }
+
+        .policy-section ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #c9a66b;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .shipping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        .shipping-table th,
+        .shipping-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5dfd5;
+        }
+
+        .shipping-table th {
+            background: #f7f2ea;
+            color: #7d6c4e;
+            font-weight: 600;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+        }
+
+        .shipping-table td {
+            color: #5a5a5a;
+        }
+
+        .highlight-box {
+            background: #f7f2ea;
+            border-left: 4px solid #c9a66b;
+            padding: 20px 25px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            color: #7d6c4e;
+            font-weight: 500;
+        }
+
+        .contact-cta {
+            background: linear-gradient(135deg, #7d6c4e 0%, #a89176 100%);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+        }
+
+        .contact-cta h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .contact-cta p {
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+
+        .contact-cta .btn {
+            display: inline-block;
+            padding: 12px 35px;
+            background: white;
+            color: #7d6c4e;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .contact-cta .btn:hover {
+            background: #f7f2ea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .policy-section {
+                padding: 25px 20px;
+            }
+
+            .policy-section h2 {
+                font-size: 1.6rem;
+            }
+
+            .shipping-table {
+                font-size: 0.9rem;
+            }
+
+            .shipping-table th,
+            .shipping-table td {
+                padding: 10px;
+            }
+
+            /* Mobile Navigation */
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                gap: 20px;
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .nav-actions {
+                gap: 15px;
+            }
+
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                padding-left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-wrapper">
+                    <a href="index.html" class="logo">
+                        <i class="fas fa-gem"></i>
+                        <span>Aura & Co</span>
+                    </a>
+                    
+                    <ul class="nav-menu">
+                        <li><a href="index.html">Home</a></li>
+                        <li class="dropdown">
+                            <a href="shop.html">Collections <i class="fas fa-chevron-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="shop.html?category=rings">Rings</a></li>
+                                <li><a href="shop.html?category=necklaces">Necklaces</a></li>
+                                <li><a href="shop.html?category=earrings">Earrings</a></li>
+                                <li><a href="shop.html?category=bracelets">Bracelets</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                    
+                    <div class="nav-actions">
+                        <a href="#" class="nav-icon"><i class="fas fa-search"></i></a>
+                        <a href="#" class="nav-icon"><i class="fas fa-user"></i></a>
+                        <a href="shop.html" class="nav-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count">0</span>
+                        </a>
+                    </div>
+                    
+                    <button class="mobile-menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Shipping & Returns</h1>
+            <p>Everything you need to know about our delivery and return policies</p>
+        </div>
+    </section>
+
+    <!-- Policy Content -->
+    <div class="policy-container">
+        
+        <!-- Shipping Policy -->
+        <div class="policy-section">
+            <h2><i class="fas fa-shipping-fast"></i> Shipping Policy</h2>
+            
+            <h3>Delivery Times</h3>
+            <p>We strive to process and ship all orders as quickly as possible. Below are our estimated delivery times within Pakistan:</p>
+            
+            <table class="shipping-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Processing Time</th>
+                        <th>Delivery Time</th>
+                        <th>Total Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Major Cities (Karachi, Lahore, Islamabad)</td>
+                        <td>1-2 business days</td>
+                        <td>2-3 business days</td>
+                        <td>3-5 business days</td>
+                    </tr>
+                    <tr>
+                        <td>Other Cities</td>
+                        <td>1-2 business days</td>
+                        <td>3-5 business days</td>
+                        <td>4-7 business days</td>
+                    </tr>
+                    <tr>
+                        <td>Remote Areas</td>
+                        <td>1-2 business days</td>
+                        <td>5-7 business days</td>
+                        <td>6-9 business days</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="highlight-box">
+                <p><i class="fas fa-info-circle"></i> Processing times may be longer during peak seasons, festivals, or promotional events.</p>
+            </div>
+            
+            <h3>Shipping Charges</h3>
+            <ul>
+                <li>Free shipping on all orders over Rs 50,000</li>
+                <li>Standard shipping: Rs 250 for orders under Rs 50,000</li>
+                <li>Express shipping (1-2 days): Rs 500</li>
+                <li>Remote area surcharge may apply</li>
+            </ul>
+            
+            <h3>Order Tracking</h3>
+            <p>Once your order ships, you'll receive a confirmation email with a tracking number. You can track your order through:</p>
+            <ul>
+                <li>Your email confirmation link</li>
+                <li>Our courier partner's website</li>
+                <li>Contact our customer service team</li>
+            </ul>
+            
+            <h3>What We Ship</h3>
+            <p>All jewelry items are carefully packaged in our signature Aura & Co boxes with:</p>
+            <ul>
+                <li>Elegant gift packaging</li>
+                <li>Certificate of authenticity</li>
+                <li>Care instructions</li>
+                <li>Complimentary jewelry pouch</li>
+            </ul>
+        </div>
+
+        <!-- Returns Policy -->
+        <div class="policy-section">
+            <h2><i class="fas fa-undo-alt"></i> Returns & Exchanges</h2>
+            
+            <h3>30-Day Return Policy</h3>
+            <p>We want you to be completely satisfied with your purchase. If you're not happy with your jewelry, you can return it within 30 days of delivery for a full refund or exchange.</p>
+            
+            <h3>Return Conditions</h3>
+            <p>To be eligible for a return, your item must meet the following conditions:</p>
+            <ul>
+                <li>Item must be in its original condition, unworn and unused</li>
+                <li>All original packaging, tags, and certificates must be included</li>
+                <li>Return must be initiated within 30 days of delivery</li>
+                <li>Item must not be a custom or personalized piece (see exceptions below)</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <p><i class="fas fa-exclamation-triangle"></i> For hygiene reasons, earrings cannot be returned once the packaging seal is broken.</p>
+            </div>
+            
+            <h3>How to Return</h3>
+            <p>Follow these simple steps to return your item:</p>
+            <ul>
+                <li><strong>Step 1:</strong> Contact us at returns@auraandco.com or call +92 300 1234567</li>
+                <li><strong>Step 2:</strong> Provide your order number and reason for return</li>
+                <li><strong>Step 3:</strong> Receive a Return Authorization Number (RAN)</li>
+                <li><strong>Step 4:</strong> Pack the item securely in its original packaging</li>
+                <li><strong>Step 5:</strong> Ship the item to our returns address (provided via email)</li>
+                <li><strong>Step 6:</strong> Receive your refund within 7-10 business days after inspection</li>
+            </ul>
+            
+            <h3>Return Shipping Costs</h3>
+            <ul>
+                <li>Free returns for defective or damaged items</li>
+                <li>Free returns if we sent the wrong item</li>
+                <li>Customer responsible for return shipping on change of mind returns</li>
+                <li>We recommend using a tracked shipping service for returns</li>
+            </ul>
+            
+            <h3>Exchanges</h3>
+            <p>Want to exchange for a different size or style? No problem! Exchanges follow the same process as returns. Contact us and we'll arrange for your exchange item to be shipped once we receive your return.</p>
+            
+            <h3>Non-Returnable Items</h3>
+            <ul>
+                <li>Custom or engraved jewelry</li>
+                <li>Personalized pieces</li>
+                <li>Items purchased on final sale</li>
+                <li>Gift cards</li>
+            </ul>
+        </div>
+
+        <!-- Refund Policy -->
+        <div class="policy-section">
+            <h2><i class="fas fa-money-check-alt"></i> Refund Policy</h2>
+            
+            <h3>Processing Refunds</h3>
+            <p>Once we receive and inspect your returned item, we'll send you an email notification. If approved, your refund will be processed as follows:</p>
+            
+            <ul>
+                <li>Refunds are issued to the original payment method</li>
+                <li>Processing time: 7-10 business days after inspection</li>
+                <li>Bank processing may take an additional 5-7 business days</li>
+                <li>You'll receive email confirmation once refund is processed</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <p><i class="fas fa-clock"></i> If you haven't received your refund within 15 business days, please contact your bank or credit card company first, then contact us.</p>
+            </div>
+            
+            <h3>Partial Refunds</h3>
+            <p>In some cases, only partial refunds are granted:</p>
+            <ul>
+                <li>Items with signs of wear or use</li>
+                <li>Items not in original packaging</li>
+                <li>Missing accessories or certificates</li>
+                <li>Items returned after 30 days (at our discretion)</li>
+            </ul>
+        </div>
+
+        <!-- Damaged Items -->
+        <div class="policy-section">
+            <h2><i class="fas fa-box-open"></i> Damaged or Defective Items</h2>
+            
+            <p>Quality is our priority. If you receive a damaged or defective item, we'll make it right immediately.</p>
+            
+            <h3>What to Do</h3>
+            <ul>
+                <li>Contact us within 48 hours of receiving your order</li>
+                <li>Provide photos of the damage or defect</li>
+                <li>Include your order number</li>
+                <li>We'll arrange for immediate replacement or full refund</li>
+                <li>Free return shipping for damaged items</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <p><i class="fas fa-shield-alt"></i> All our jewelry comes with a 1-year warranty against manufacturing defects.</p>
+            </div>
+        </div>
+
+        <!-- International Shipping -->
+        <div class="policy-section">
+            <h2><i class="fas fa-globe"></i> International Shipping</h2>
+            
+            <p>Currently, we ship within Pakistan only. We're working on expanding our international shipping soon. Sign up for our newsletter to be notified when international shipping becomes available.</p>
+            
+            <h3>Coming Soon</h3>
+            <ul>
+                <li>International delivery to select countries</li>
+                <li>Duty and tax calculation at checkout</li>
+                <li>Express international shipping options</li>
+            </ul>
+        </div>
+
+        <!-- Contact CTA -->
+        <div class="contact-cta">
+            <h3>Still Have Questions?</h3>
+            <p>Our customer service team is here to help with any shipping or return inquiries.</p>
+            <a href="contact.html" class="btn">Contact Us</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <h3>Aura & Co</h3>
+                <p>Customized Beautiful Jewelry</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Catalog</a>
+                <a href="shop.html">Collections</a>
+                <a href="about.html">About Us</a>
+            </div>
+            <div class="footer-links">
+                <h4>Customer Care</h4>
+                <a href="contact.html">Contact</a>
+                <a href="faq.html">FAQ</a>
+                <a href="shipping.html">Shipping & Returns</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div class="footer-social">
+                <h4>Follow Us</h4>
+                <div class="footer-social-icons">
+                    <a href="#">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="#">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
+                    <a href="#">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                        </svg>
+                    </a>
+                    <a href="#">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 Aura & Co. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="js/cart.js"></script>
+    <script>
+        // Update cart count
+        window.addEventListener('load', function() {
+            const cart = ShoppingCart.getCart();
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelector('.cart-count').textContent = totalItems;
+        });
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

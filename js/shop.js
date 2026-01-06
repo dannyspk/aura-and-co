@@ -33,15 +33,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Render product cards
         productsGrid.innerHTML = filteredProducts.map(product => `
             <div class="product-card" data-category="${product.category}">
-                <div class="product-image">
-                    <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/400x400/8B7355/ffffff?text=Aura+%26+Co'">
+                <div class="product-image" onclick="window.location.href='product-details.html?id=${product.id}'" style="cursor: pointer;">
+                    <img src="${product.image}" alt="${product.name}">
                     ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
                 </div>
                 <div class="product-info">
                     <div class="product-category">${product.category}</div>
-                    <h3 class="product-name">${product.name}</h3>
-                    <div class="product-price">$${product.price.toLocaleString()}</div>
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
+                    <h3 class="product-name" onclick="window.location.href='product-details.html?id=${product.id}'" style="cursor: pointer;">${product.name}</h3>
+                    <div class="product-price">Rs ${product.price.toLocaleString('en-PK')}</div>
+                    <button class="add-to-cart-btn" onclick="addToCart(${product.id}, event)">
                         <i class="fas fa-shopping-bag"></i> Add to Cart
                     </button>
                 </div>
@@ -81,10 +81,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Add to cart function
-function addToCart(productId) {
+function addToCart(productId, event) {
+    // Prevent navigation to product details page
+    if (event) {
+        event.stopPropagation();
+    }
+    
     const product = products.find(p => p.id === productId);
     if (product) {
         cart.addItem(product);
+        
+        // Visual feedback
+        const btn = event ? event.target.closest('button') : null;
+        if (btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Added!';
+            btn.style.background = '#4CAF50';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 1500);
+        }
     }
 }
 

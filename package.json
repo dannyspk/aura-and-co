@@ -1,0 +1,16 @@
+{
+  "name": "aura-and-co",
+  "version": "1.0.0",
+  "description": "Luxury Jewelry E-Commerce Store",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": ["jewelry", "ecommerce", "luxury"],
+  "author": "Aura & Co",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

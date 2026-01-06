@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop - Aura & Co Jewelry</title>
+    <title>About Us - Aura & Co | Timeless Jewelry</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -149,9 +149,6 @@
             transition: color 0.3s ease;
             text-decoration: none;
             position: relative;
-            background: none;
-            border: none;
-            cursor: pointer;
         }
 
         .nav-icon:hover {
@@ -273,7 +270,244 @@
             border-top: 1px solid #ddd;
         }
 
+        /* About Page Styles */
+        .about-hero {
+            background: linear-gradient(135deg, #7d6c4e 0%, #a89176 100%);
+            padding: 120px 0 80px;
+            text-align: center;
+            color: white;
+        }
+
+        .about-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .about-hero p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.95;
+        }
+
+        .about-section {
+            padding: 80px 0;
+        }
+
+        .about-section:nth-child(even) {
+            background-color: #f7f2ea;
+        }
+
+        .about-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .about-text h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #7d6c4e;
+            margin-bottom: 25px;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #5a5a5a;
+            margin-bottom: 20px;
+        }
+
+        .about-image {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .value-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .value-icon {
+            font-size: 3rem;
+            color: #c9a66b;
+            margin-bottom: 20px;
+        }
+
+        .value-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #7d6c4e;
+            margin-bottom: 15px;
+        }
+
+        .value-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .team-section {
+            text-align: center;
+        }
+
+        .team-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #7d6c4e;
+            margin-bottom: 50px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .team-member {
+            text-align: center;
+        }
+
+        .team-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            border: 4px solid #c9a66b;
+            background: linear-gradient(135deg, #7d6c4e 0%, #a89176 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+        }
+
+        .team-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .team-member h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #7d6c4e;
+            margin-bottom: 5px;
+        }
+
+        .team-member .role {
+            color: #c9a66b;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .team-member p {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #7d6c4e 0%, #a89176 100%);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: white;
+            color: #7d6c4e;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #f7f2ea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
         @media (max-width: 768px) {
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-hero p {
+                font-size: 1.1rem;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .about-text h2 {
+                font-size: 2rem;
+            }
+
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Mobile Navigation */
             .mobile-menu-toggle {
                 display: block;
             }
@@ -304,11 +538,6 @@
                 box-shadow: none;
                 padding-left: 20px;
             }
-
-            .footer-container {
-                flex-direction: column;
-                gap: 2em;
-            }
         }
     </style>
 </head>
@@ -326,7 +555,7 @@
                     <ul class="nav-menu">
                         <li><a href="index.html">Home</a></li>
                         <li class="dropdown">
-                            <a href="shop.html" class="active">Collections <i class="fas fa-chevron-down"></i></a>
+                            <a href="shop.html">Collections <i class="fas fa-chevron-down"></i></a>
                             <ul class="dropdown-menu">
                                 <li><a href="shop.html?category=rings">Rings</a></li>
                                 <li><a href="shop.html?category=necklaces">Necklaces</a></li>
@@ -334,17 +563,17 @@
                                 <li><a href="shop.html?category=bracelets">Bracelets</a></li>
                             </ul>
                         </li>
-                        <li><a href="about.html">About</a></li>
+                        <li><a href="about.html" class="active">About</a></li>
                         <li><a href="contact.html">Contact</a></li>
                     </ul>
                     
                     <div class="nav-actions">
-                        <button class="nav-icon"><i class="fas fa-search"></i></button>
-                        <button class="nav-icon"><i class="fas fa-user"></i></button>
-                        <button class="nav-icon" onclick="toggleCart()">
+                        <a href="#" class="nav-icon"><i class="fas fa-search"></i></a>
+                        <a href="#" class="nav-icon"><i class="fas fa-user"></i></a>
+                        <a href="shop.html" class="nav-icon">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count">0</span>
-                        </button>
+                        </a>
                     </div>
                     
                     <button class="mobile-menu-toggle">
@@ -355,69 +584,134 @@
         </nav>
     </header>
 
-    <!-- Shop Header -->
-    <section class="shop-header">
-        <div class="container">
-            <h1>Our Collection</h1>
-            <p>Discover exquisite jewelry pieces crafted with passion</p>
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="about-content">
+            <h1>Our Story</h1>
+            <p>Crafting timeless elegance with every piece, one sparkle at a time</p>
         </div>
     </section>
 
-    <!-- Filters & Sort -->
-    <section class="shop-controls">
-        <div class="container">
-            <div class="filters">
-                <button class="filter-btn active" data-category="all">All</button>
-                <button class="filter-btn" data-category="rings">Rings</button>
-                <button class="filter-btn" data-category="necklaces">Necklaces</button>
-                <button class="filter-btn" data-category="earrings">Earrings</button>
-                <button class="filter-btn" data-category="bracelets">Bracelets</button>
-            </div>
-            <div class="sort">
-                <select id="sortSelect">
-                    <option value="featured">Featured</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="newest">Newest</option>
-                </select>
+    <!-- Story Section -->
+    <section class="about-section">
+        <div class="about-content">
+            <div class="about-grid">
+                <div class="about-text">
+                    <h2>Where It All Began</h2>
+                    <p>Founded in 2020, Aura & Co was born from a passion for creating jewelry that tells a story. What started as a small workshop has grown into a beloved brand known for exquisite craftsmanship and timeless designs.</p>
+                    <p>Every piece we create is more than just jewelry – it's a celebration of life's precious moments, designed to be cherished for generations. Our commitment to quality and authenticity has made us a trusted name in fine jewelry.</p>
+                    <p>We believe that jewelry should be as unique as the person wearing it. That's why we pour our hearts into every design, ensuring each piece carries its own special aura.</p>
+                </div>
+                <div class="about-image">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%238B7355' width='600' height='400'/%3E%3Ctext fill='%23ffffff' font-family='Playfair Display' font-size='32' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3EOur Workshop%3C/text%3E%3C/svg%3E" alt="Our Workshop">
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Products Grid -->
-    <section class="products-section">
-        <div class="container">
-            <div class="products-grid" id="productsGrid">
-                <!-- Products will be dynamically loaded here -->
+    <!-- Mission Section -->
+    <section class="about-section">
+        <div class="about-content">
+            <div class="about-grid">
+                <div class="about-image">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%23A89176' width='600' height='400'/%3E%3Ctext fill='%23ffffff' font-family='Playfair Display' font-size='32' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3ECraftsmanship%3C/text%3E%3C/svg%3E" alt="Craftsmanship">
+                </div>
+                <div class="about-text">
+                    <h2>Our Mission</h2>
+                    <p>At Aura & Co, our mission is to create jewelry that transcends trends and stands the test of time. We are dedicated to combining traditional craftsmanship with contemporary design to produce pieces that resonate with modern elegance.</p>
+                    <p>We source only the finest materials and work with skilled artisans who share our vision for excellence. Each gemstone is carefully selected, each setting meticulously crafted, ensuring that every piece meets our exacting standards.</p>
+                    <p>Beyond creating beautiful jewelry, we're committed to ethical practices, sustainable sourcing, and providing an exceptional experience for every customer who trusts us with their special moments.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Shopping Cart Sidebar -->
-    <div class="cart-sidebar" id="cartSidebar">
-        <div class="cart-header">
-            <h2>Shopping Cart</h2>
-            <button class="close-cart" onclick="toggleCart()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="cart-items" id="cartItems">
-            <!-- Cart items will be dynamically loaded here -->
-        </div>
-        <div class="cart-footer">
-            <div class="cart-total">
-                <span>Subtotal:</span>
-                <span class="total-amount" id="cartTotal">$0.00</span>
+    <!-- Values Section -->
+    <section class="about-section">
+        <div class="about-content">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #7d6c4e; text-align: center; margin-bottom: 20px;">Our Values</h2>
+            <p style="text-align: center; color: #666; font-size: 1.1rem; max-width: 700px; margin: 0 auto 50px;">The principles that guide everything we do</p>
+            
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3>Quality First</h3>
+                    <p>We never compromise on the quality of our materials or craftsmanship. Every piece is made to last a lifetime.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3>Ethical Sourcing</h3>
+                    <p>We're committed to responsible sourcing practices, ensuring our materials are ethically obtained and sustainable.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Artisan Craftsmanship</h3>
+                    <p>Our skilled artisans bring decades of experience, creating each piece with meticulous attention to detail.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Customer Care</h3>
+                    <p>Your satisfaction and trust are paramount. We're here to make your jewelry journey exceptional.</p>
+                </div>
             </div>
-            <button class="btn btn-primary btn-block" onclick="goToCheckout()">
-                Proceed to Checkout
-            </button>
-            <button class="btn btn-secondary btn-block" onclick="toggleCart()">
-                Continue Shopping
-            </button>
         </div>
-    </div>
+    </section>
 
-    <!-- Cart Overlay -->
-    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <!-- Team Section -->
+    <section class="about-section team-section">
+        <div class="about-content">
+            <h2>Meet Our Team</h2>
+            
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="team-photo">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>Sarah Ahmed</h3>
+                    <p class="role">Founder & Creative Director</p>
+                    <p>With over 15 years in jewelry design, Sarah brings a unique vision that blends traditional elegance with modern aesthetics.</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="team-photo">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>Hassan Khan</h3>
+                    <p class="role">Master Craftsman</p>
+                    <p>Hassan's three decades of experience ensure that every piece meets the highest standards of quality and precision.</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="team-photo">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>Ayesha Malik</h3>
+                    <p class="role">Customer Relations Manager</p>
+                    <p>Ayesha ensures every customer receives personalized service and finds the perfect piece for their special moments.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="about-content">
+            <h2>Experience the Aura Difference</h2>
+            <p>Discover our collection of timeless pieces</p>
+            <a href="shop.html" class="cta-button">Shop Now</a>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -471,8 +765,19 @@
         </div>
     </footer>
 
-    <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
-    <script src="js/shop.js"></script>
+    <script>
+        // Update cart count
+        window.addEventListener('load', function() {
+            const cart = ShoppingCart.getCart();
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelector('.cart-count').textContent = totalItems;
+        });
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!orderNumber || !orderData.orderNumber) {
         // No order found, redirect to shop
-        window.location.href = '/shop';
+        window.location.href = 'shop.html';
         return;
     }
     
@@ -28,20 +28,20 @@ function displayOrderConfirmation(order) {
     const orderItemsContainer = document.getElementById('orderItems');
     orderItemsContainer.innerHTML = order.items.map(item => `
         <div class="order-item">
-            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/80x80/8B7355/ffffff?text=Aura'">
+            <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Crect fill=%27%238B7355%27 width=%2780%27 height=%2780%27/%3E%3Ctext fill=%27%23ffffff%27 font-family=%27Arial%27 font-size=%2716%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EAura%3C/text%3E%3C/svg%3E'">
             <div class="item-details">
                 <div class="item-name">${item.name}</div>
                 <div class="item-quantity">Quantity: ${item.quantity}</div>
             </div>
-            <div class="item-price">$${(item.price * item.quantity).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+            <div class="item-price">Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</div>
         </div>
     `).join('');
     
     // Order totals
-    document.getElementById('orderSubtotal').textContent = `$${order.subtotal.toFixed(2)}`;
-    document.getElementById('orderShipping').textContent = order.shipping === 0 ? 'FREE' : `$${order.shipping.toFixed(2)}`;
-    document.getElementById('orderTax').textContent = `$${order.tax.toFixed(2)}`;
-    document.getElementById('orderTotal').textContent = `$${order.total.toFixed(2)}`;
+    document.getElementById('orderSubtotal').textContent = `Rs ${order.subtotal.toLocaleString('en-PK')}`;
+    document.getElementById('orderShipping').textContent = order.shipping === 0 ? 'FREE' : `Rs ${order.shipping.toLocaleString('en-PK')}`;
+    document.getElementById('orderTax').textContent = `Rs ${order.tax.toLocaleString('en-PK')}`;
+    document.getElementById('orderTotal').textContent = `Rs ${order.total.toLocaleString('en-PK')}`;
     
     // Shipping address
     const shippingDiv = document.getElementById('shippingAddress');

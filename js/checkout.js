@@ -9,7 +9,7 @@ let orderData = {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if cart is empty
     if (cart.getCount() === 0) {
-        window.location.href = '/shop';
+        window.location.href = 'shop.html';
         return;
     }
 
@@ -22,35 +22,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup form validation
     setupFormValidation();
     
-    // Setup card formatting
-    setupCardFormatting();
+    // Setup payment method toggle
+    setupPaymentMethodToggle();
 });
 
 // Display order summary
 function displayOrderSummary() {
     const checkoutItems = document.getElementById('checkoutItems');
     const subtotal = cart.getTotal();
-    const shipping = 0; // Free shipping
-    const tax = subtotal * 0.08; // 8% tax
+    const shipping = subtotal >= 50000 ? 0 : 500; // Free shipping over Rs 50,000
+    const tax = 0; // No tax display for Pakistan
     const total = subtotal + shipping + tax;
     
     // Render items
     checkoutItems.innerHTML = cart.items.map(item => `
         <div class="checkout-item">
-            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/80x80/8B7355/ffffff?text=Aura'">
+            <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Crect fill=%27%238B7355%27 width=%2780%27 height=%2780%27/%3E%3Ctext fill=%27%23ffffff%27 font-family=%27Arial%27 font-size=%2716%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EAura%3C/text%3E%3C/svg%3E'">
             <div class="item-details">
                 <div class="item-name">${item.name}</div>
                 <div class="item-quantity">Qty: ${item.quantity}</div>
             </div>
-            <div class="item-price">$${(item.price * item.quantity).toLocaleString()}</div>
+            <div class="item-price">Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</div>
         </div>
     `).join('');
     
     // Update summary totals
-    document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-    document.getElementById('summaryShipping').textContent = shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`;
-    document.getElementById('summaryTax').textContent = `$${tax.toFixed(2)}`;
-    document.getElementById('summaryTotal').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('summarySubtotal').textContent = `Rs ${subtotal.toLocaleString('en-PK')}`;
+    document.getElementById('summaryShipping').textContent = shipping === 0 ? 'FREE' : `Rs ${shipping.toLocaleString('en-PK')}`;
+    document.getElementById('summaryTax').textContent = `Rs ${tax.toLocaleString('en-PK')}`;
+    document.getElementById('summaryTotal').textContent = `Rs ${total.toLocaleString('en-PK')}`;
 }
 
 // Navigation functions
@@ -146,33 +146,18 @@ function validateShippingForm() {
 }
 
 function validatePaymentForm() {
-    const form = document.getElementById('paymentForm');
-    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-    const expiry = document.getElementById('expiry').value;
-    const cvv = document.getElementById('cvv').value;
-    
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
     let isValid = true;
     
-    // Validate card number (basic check)
-    if (cardNumber.length < 15 || cardNumber.length > 16) {
-        document.getElementById('cardNumber').classList.add('error');
-        isValid = false;
-    }
-    
-    // Validate expiry (MM/YY format)
-    if (!/^\d{2}\/\d{2}$/.test(expiry)) {
-        document.getElementById('expiry').classList.add('error');
-        isValid = false;
-    }
-    
-    // Validate CVV
-    if (cvv.length < 3 || cvv.length > 4) {
-        document.getElementById('cvv').classList.add('error');
-        isValid = false;
-    }
-    
-    if (!isValid) {
-        showNotification('Please check your payment details', 'error');
+    if (paymentMethod === 'easypaisa' || paymentMethod === 'jazzcash') {
+        const mobileNumber = document.getElementById('mobileNumber').value;
+        const mobilePattern = /^03[0-9]{2}-[0-9]{7}$/;
+        
+        if (!mobilePattern.test(mobileNumber)) {
+            document.getElementById('mobileNumber').classList.add('error');
+            showNotification('Please enter a valid mobile number (03XX-XXXXXXX)', 'error');
+            isValid = false;
+        }
     }
     
     return isValid;
@@ -197,12 +182,20 @@ function saveShippingData() {
 }
 
 function savePaymentData() {
-    const cardNumber = document.getElementById('cardNumber').value;
-    const lastFour = cardNumber.slice(-4);
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    const paymentValue = paymentMethod ? paymentMethod.value : 'cod';
+    
+    let paymentLabel = 'Cash on Delivery';
+    if (paymentValue === 'easypaisa') {
+        paymentLabel = 'Easypaisa';
+    } else if (paymentValue === 'jazzcash') {
+        paymentLabel = 'JazzCash';
+    }
     
     orderData.payment = {
-        cardLast4: lastFour,
-        cardName: document.getElementById('cardName').value
+        method: paymentValue,
+        methodLabel: paymentLabel,
+        mobileNumber: document.getElementById('mobileNumber')?.value || ''
     };
 }
 
@@ -220,20 +213,21 @@ function displayReview() {
     `;
     
     // Payment info
-    document.getElementById('reviewPayment').innerHTML = `
-        <p><strong>${orderData.payment.cardName}</strong></p>
-        <p>Card ending in •••• ${orderData.payment.cardLast4}</p>
-    `;
+    let paymentHtml = `<p><strong>${orderData.payment.methodLabel}</strong></p>`;
+    if (orderData.payment.mobileNumber) {
+        paymentHtml += `<p>Mobile: ${orderData.payment.mobileNumber}</p>`;
+    }
+    document.getElementById('reviewPayment').innerHTML = paymentHtml;
     
     // Order items
     document.getElementById('reviewItems').innerHTML = cart.items.map(item => `
         <div class="review-item">
-            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/80x80/8B7355/ffffff?text=Aura'">
+            <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Crect fill=%27%238B7355%27 width=%2780%27 height=%2780%27/%3E%3Ctext fill=%27%23ffffff%27 font-family=%27Arial%27 font-size=%2716%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EAura%3C/text%3E%3C/svg%3E'">
             <div class="item-info">
                 <div class="item-name">${item.name}</div>
-                <div class="item-meta">Quantity: ${item.quantity} × $${item.price.toLocaleString()}</div>
+                <div class="item-meta">Quantity: ${item.quantity} × Rs ${item.price.toLocaleString('en-PK')}</div>
             </div>
-            <div class="item-total">$${(item.price * item.quantity).toLocaleString()}</div>
+            <div class="item-total">Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</div>
         </div>
     `).join('');
 }
@@ -259,51 +253,56 @@ function placeOrder() {
             payment: orderData.payment,
             items: orderData.items,
             subtotal: cart.getTotal(),
-            tax: cart.getTotal() * 0.08,
-            shipping: 0,
-            total: cart.getTotal() * 1.08
+            tax: 0,
+            shippingCost: cart.getTotal() >= 50000 ? 0 : 500,
+            total: cart.getTotal() + (cart.getTotal() >= 50000 ? 0 : 500),
+            status: 'pending',
+            tracking: ''
         };
         
+        // Save to last order (for confirmation page)
         localStorage.setItem('lastOrder', JSON.stringify(order));
+        
+        // Add to orders list
+        let orders = JSON.parse(localStorage.getItem('auraOrders') || '[]');
+        orders.push(order);
+        localStorage.setItem('auraOrders', JSON.stringify(orders));
         
         // Clear cart
         cart.clearCart();
         
         // Redirect to confirmation
-        window.location.href = '/order-confirmation?order=' + orderNumber;
+        window.location.href = 'order-confirmation.html?order=' + orderNumber;
     }, 2000);
 }
 
-// Card formatting
-function setupCardFormatting() {
-    const cardNumber = document.getElementById('cardNumber');
-    const expiry = document.getElementById('expiry');
-    const cvv = document.getElementById('cvv');
+// Payment method toggle
+function setupPaymentMethodToggle() {
+    const paymentOptions = document.querySelectorAll('input[name="paymentMethod"]');
+    const mobileWalletSection = document.getElementById('mobileWalletSection');
+    const mobileNumberInput = document.getElementById('mobileNumber');
     
-    // Format card number
-    if (cardNumber) {
-        cardNumber.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\s/g, '');
-            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-            e.target.value = formattedValue;
+    paymentOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            if (this.value === 'easypaisa' || this.value === 'jazzcash') {
+                mobileWalletSection.classList.remove('hidden');
+                mobileNumberInput.setAttribute('required', 'required');
+            } else {
+                mobileWalletSection.classList.add('hidden');
+                mobileNumberInput.removeAttribute('required');
+                mobileNumberInput.classList.remove('error');
+            }
         });
-    }
+    });
     
-    // Format expiry
-    if (expiry) {
-        expiry.addEventListener('input', function(e) {
+    // Format mobile number
+    if (mobileNumberInput) {
+        mobileNumberInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
-            if (value.length >= 2) {
-                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            if (value.length > 4) {
+                value = value.slice(0, 4) + '-' + value.slice(4, 11);
             }
             e.target.value = value;
-        });
-    }
-    
-    // CVV numbers only
-    if (cvv) {
-        cvv.addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '');
         });
     }
 }

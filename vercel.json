@@ -2,14 +2,44 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/shop", "destination": "/shop.html" },
-    { "source": "/checkout", "destination": "/checkout.html" },
-    { "source": "/order-confirmation", "destination": "/order-confirmation.html" }
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/shop",
+      "destination": "/shop.html"
+    },
+    {
+      "source": "/checkout",
+      "destination": "/checkout.html"
+    },
+    {
+      "source": "/order-confirmation",
+      "destination": "/order-confirmation.html"
+    }
   ],
   "redirects": [
-    { "source": "/shop.html", "destination": "/shop", "permanent": true },
-    { "source": "/checkout.html", "destination": "/checkout", "permanent": true },
-    { "source": "/order-confirmation.html", "destination": "/order-confirmation", "permanent": true }
+    {
+      "source": "/shop.html",
+      "destination": "/shop",
+      "permanent": true
+    },
+    {
+      "source": "/checkout.html",
+      "destination": "/checkout",
+      "permanent": true
+    },
+    {
+      "source": "/order-confirmation.html",
+      "destination": "/order-confirmation",
+      "permanent": true
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/admin",
+      "permanent": true
+    }
   ],
   "headers": [
     {

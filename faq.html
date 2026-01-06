@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Aura & Co</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #fff;
+            color: #222;
+        }
+
+        .top-bar {
+            background: #f7f2ea;
+            text-align: center;
+            font-size: 0.95rem;
+            padding: 0.5em 0;
+            letter-spacing: 0.05em;
+            color: #7d6c4e;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2em 3vw 0.5em 3vw;
+            border-bottom: 1px solid #eee;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left, .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.2em;
+        }
+
+        .logo {
+            text-align: center;
+            flex: 1;
+        }
+
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin: 0;
+            letter-spacing: 0.12em;
+            font-weight: 400;
+        }
+
+        .logo h1 a {
+            color: #222;
+            text-decoration: none;
+        }
+
+        .logo p {
+            font-size: 0.95rem;
+            margin: 0;
+            letter-spacing: 0.18em;
+            color: #7d6c4e;
+        }
+
+        .icon {
+            width: 22px;
+            height: 22px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            color: #222;
+        }
+
+        .icon:hover {
+            opacity: 1;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #7d6c4e 0%, #a89176 100%);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero-section h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* FAQ Content */
+        .faq-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .faq-category {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #7d6c4e;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f7f2ea;
+        }
+
+        .faq-item {
+            background: white;
+            border: 2px solid #f7f2ea;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: #e5dfd5;
+            box-shadow: 0 4px 12px rgba(125, 108, 78, 0.1);
+        }
+
+        .faq-question {
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #222;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: #f7f2ea;
+            color: #7d6c4e;
+        }
+
+        .faq-icon {
+            font-size: 1.2rem;
+            color: #7d6c4e;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer-content {
+            padding: 0 25px 25px 25px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+
+        /* Contact CTA */
+        .contact-cta {
+            background: #f7f2ea;
+            padding: 60px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .contact-cta h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #7d6c4e;
+            margin-bottom: 15px;
+        }
+
+        .contact-cta p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: #7d6c4e;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            background: #6a5d43;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(125, 108, 78, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: #222;
+            color: #fff;
+            padding: 40px 20px 20px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .category-title {
+                font-size: 1.5rem;
+            }
+
+            .faq-question {
+                font-size: 0.95rem;
+                padding: 15px 20px;
+            }
+
+            .faq-answer-content {
+                padding: 0 20px 20px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        FREE SHIPPING ON ORDERS OVER RS 50,000
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        <div class="logo">
+            <h1><a href="index.html">AURA & CO</a></h1>
+            <p>CUSTOMIZED BEAUTIFUL JEWELRY</p>
+        </div>
+        <div class="header-right">
+            <a href="index.html">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1>Frequently Asked Questions</h1>
+        <p>Find answers to common questions about our jewelry and services</p>
+    </section>
+
+    <!-- FAQ Content -->
+    <div class="faq-container">
+        <!-- Orders & Shipping -->
+        <div class="faq-category">
+            <h2 class="category-title">Orders & Shipping</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How long does shipping take?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Standard shipping typically takes 3-5 business days within Pakistan. Express shipping options are available for faster delivery (1-2 business days). International shipping times vary by location, usually 7-14 business days.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Do you offer free shipping?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes! We offer free standard shipping on all orders over Rs 50,000 within Pakistan. For orders under this amount, a flat shipping fee of Rs 500 applies.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Can I track my order?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Absolutely! Once your order ships, you'll receive a confirmation email with a tracking number. You can use this to track your package in real-time.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products & Care -->
+        <div class="faq-category">
+            <h2 class="category-title">Products & Care</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>What materials are your jewelry made from?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        We use only high-quality materials including 14K and 18K gold, sterling silver, platinum, and genuine gemstones. Each product listing includes detailed information about the materials used.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How do I care for my jewelry?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        To keep your jewelry looking its best: store it in a cool, dry place away from direct sunlight; clean gently with a soft cloth; avoid contact with chemicals, perfumes, and lotions; remove jewelry before swimming or exercising.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Do you offer custom designs?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes! We love creating custom pieces. Contact us with your ideas, and our designers will work with you to bring your vision to life. Custom orders typically take 4-6 weeks depending on complexity.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Returns & Exchanges -->
+        <div class="faq-category">
+            <h2 class="category-title">Returns & Exchanges</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>What is your return policy?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        We offer a 30-day return policy for most items. Products must be unworn, in original condition with tags attached. Custom or personalized items are not eligible for returns unless defective.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How do I initiate a return?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Contact our customer service team at support@auraandco.com with your order number. We'll provide you with a return authorization and shipping instructions. Return shipping is free for defective items.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>When will I receive my refund?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Refunds are processed within 5-7 business days after we receive your return. The refund will be credited to your original payment method. Please allow an additional 3-5 business days for the credit to appear in your account.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment & Security -->
+        <div class="faq-category">
+            <h2 class="category-title">Payment & Security</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>What payment methods do you accept?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        We accept Cash on Delivery (COD), Easypaisa, JazzCash, and major credit/debit cards. All online payments are processed through secure payment gateways.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Is my personal information secure?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes, we take your security seriously. All transactions are encrypted and secure. We never store your complete payment information, and we comply with industry-standard security practices.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Do you offer installment plans?</span>
+                    <i class="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Currently, we offer full payment options only. However, we're working on adding installment plans for high-value purchases. Stay tuned for updates!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact CTA -->
+    <section class="contact-cta">
+        <h2>Still Have Questions?</h2>
+        <p>Our customer service team is here to help</p>
+        <a href="contact.html" class="cta-btn">Contact Us</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Aura & Co. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Accordion functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', function() {
+                const faqItem = this.parentElement;
+                const wasActive = faqItem.classList.contains('active');
+                
+                // Close all other FAQs
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Toggle current FAQ
+                if (!wasActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
