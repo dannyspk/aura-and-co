@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura & Co | Customized Beauitful Jewelry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #fff;
+      color: #222;
+    }
+    
+    .top-bar {
+      background: #f7f2ea;
+      text-align: center;
+      font-size: 0.95rem;
+      padding: 0.5em 0;
+      letter-spacing: 0.05em;
+      color: #7d6c4e;
+    }
+    
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2em 3vw 0.5em 3vw;
+      border-bottom: 1px solid #eee;
+      background: #fff;
+    }
+    
+    .header-left, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.2em;
+    }
+    
+    .logo {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      margin: 0;
+      letter-spacing: 0.12em;
+      font-weight: 400;
+    }
+    
+    .logo p {
+      font-size: 0.95rem;
+      margin: 0;
+      letter-spacing: 0.18em;
+      color: #7d6c4e;
+    }
+    
+    .icon {
+      width: 22px;
+      height: 22px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      cursor: pointer;
+      color: #222;
+    }
+    
+    .icon:hover {
+      opacity: 1;
+    }
+    
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 2em;
+      padding: 1em 0 0.5em 0;
+      font-size: 1.05rem;
+    }
+    
+    .nav a {
+      color: #222;
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 0.2em;
+      transition: color 0.2s;
+    }
+    
+    .nav a.active, .nav a:hover {
+      color: #7d6c4e;
+      font-weight: 500;
+    }
+    
+    .nav .dropdown {
+      position: relative;
+    }
+    
+    .nav .dropdown-content {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: 2em;
+      background: #fff;
+      min-width: 160px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      z-index: 10;
+      border-radius: 0.3em;
+      border: 1px solid #eee;
+    }
+    
+    .nav .dropdown:hover .dropdown-content {
+      display: block;
+    }
+    
+    .nav .dropdown-content a {
+      display: block;
+      padding: 0.7em 1em;
+      color: #222;
+      text-decoration: none;
+      font-size: 0.98rem;
+      border-bottom: 1px solid #f7f2ea;
+    }
+    
+    .nav .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+    
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4em 5vw;
+      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('heroimage.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      flex-wrap: wrap;
+      gap: 2em;
+      min-height: 500px;
+      position: relative;
+    }
+    
+    .hero-images {
+      display: none;
+    }
+    
+    .hero-img-arch {
+      width: 180px;
+      height: 260px;
+      overflow: hidden;
+      border-radius: 90px 90px 0 0 / 130px 130px 0 0;
+      border: 2px solid #eee;
+      background: #f7f2ea;
+    }
+    
+    .hero-img-arch img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .hero-content {
+      min-width: 320px;
+      max-width: 600px;
+      text-align: center;
+      z-index: 1;
+    }
+    
+    .hero-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      margin: 0 0 0.2em 0;
+      letter-spacing: 0.08em;
+      font-weight: 400;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hero-content .collection {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-style: italic;
+      margin-bottom: 0.5em;
+      letter-spacing: 0.04em;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hero-content .tagline {
+      font-size: 1.3rem;
+      color: #fff;
+      margin-bottom: 1.5em;
+      letter-spacing: 0.08em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hero-content .shop-btn {
+      background: #fff;
+      color: #222;
+      border: none;
+      padding: 1em 2.5em;
+      font-size: 1.1rem;
+      border-radius: 2em;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    .hero-content .shop-btn:hover {
+      background: #7d6c4e;
+      color: #fff;
+      transform: scale(1.05);
+    }
+    
+    /* Featured Products Section */
+    .featured-products {
+      padding: 4em 5vw;
+      background: #faf7f2;
+      text-align: center;
+    }
+    
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      margin-bottom: 1.8em;
+      color: #222;
+      letter-spacing: 0.08em;
+      font-weight: 400;
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2em;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1em;
+    }
+    
+    .product-card {
+      background: #fff;
+      border-radius: 1em;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 1.5em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      transform: translateY(-8px);
+    }
+    
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 0.8em;
+      margin-bottom: 1em;
+    }
+    
+    .product-info {
+      text-align: center;
+      width: 100%;
+    }
+    
+    .product-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.5em;
+      color: #222;
+    }
+    
+    .product-price {
+      font-size: 1.15rem;
+      color: #7d6c4e;
+      font-weight: 600;
+    }
+    
+    /* About Section */
+    .about-section {
+      padding: 4em 5vw;
+      background: #fff;
+    }
+    
+    .about-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4em;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    
+    .about-text {
+      flex: 1 1 400px;
+      min-width: 300px;
+    }
+    
+    .about-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      margin-bottom: 0.8em;
+      color: #222;
+      letter-spacing: 0.05em;
+    }
+    
+    .about-text p {
+      font-size: 1.1rem;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 1.5em;
+    }
+    
+    .about-img {
+      flex: 1 1 350px;
+      min-width: 280px;
+      text-align: center;
+    }
+    
+    .about-img img {
+      width: 100%;
+      max-width: 400px;
+      height: 350px;
+      object-fit: cover;
+      border-radius: 1.2em;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    
+    /* Testimonials Section */
+    .testimonials-section {
+      padding: 4em 5vw;
+      background: #faf7f2;
+      text-align: center;
+    }
+    
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2em;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1em;
+    }
+    
+    .testimonial-card {
+      background: #fff;
+      border-radius: 1em;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 2em 1.5em;
+      transition: all 0.3s ease;
+    }
+    
+    .testimonial-card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transform: translateY(-4px);
+    }
+    
+    .testimonial-card p {
+      font-size: 1.05rem;
+      color: #555;
+      font-style: italic;
+      line-height: 1.7;
+      margin-bottom: 1em;
+    }
+    
+    .testimonial-author {
+      font-size: 1rem;
+      color: #7d6c4e;
+      font-style: normal;
+      font-weight: 600;
+    }
+    
+    /* Newsletter Section */
+    .newsletter-section {
+      padding: 4em 5vw;
+      background: #fff;
+      text-align: center;
+    }
+    
+    .newsletter-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .newsletter-container h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      margin-bottom: 0.5em;
+      color: #222;
+      letter-spacing: 0.05em;
+    }
+    
+    .newsletter-container p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 1.5em;
+    }
+    
+    .newsletter-form {
+      display: flex;
+      gap: 0.8em;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .newsletter-form input[type="email"] {
+      padding: 0.9em 1.5em;
+      border-radius: 2em;
+      border: 2px solid #ddd;
+      font-size: 1rem;
+      outline: none;
+      flex: 1;
+      min-width: 250px;
+      max-width: 350px;
+      transition: border-color 0.2s;
+    }
+    
+    .newsletter-form input[type="email"]:focus {
+      border-color: #7d6c4e;
+    }
+    
+    .newsletter-form button {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 0.9em 2em;
+      font-size: 1rem;
+      border-radius: 2em;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: background 0.2s;
+      font-weight: 500;
+    }
+    
+    .newsletter-form button:hover {
+      background: #7d6c4e;
+    }
+    
+    /* Footer Section */
+    .footer {
+      background: #f7f2ea;
+      padding: 3em 5vw 1em 5vw;
+      color: #222;
+    }
+    
+    .footer-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      max-width: 1200px;
+      margin: 0 auto 2em auto;
+      gap: 3em;
+    }
+    
+    .footer-logo h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin: 0 0 0.3em 0;
+      letter-spacing: 0.08em;
+    }
+    
+    .footer-logo p {
+      font-size: 0.95rem;
+      color: #7d6c4e;
+      margin: 0;
+      letter-spacing: 0.05em;
+    }
+    
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8em;
+    }
+    
+    .footer-links h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5em;
+      font-weight: 600;
+    }
+    
+    .footer-links a {
+      color: #444;
+      text-decoration: none;
+      transition: color 0.2s;
+      font-size: 0.95rem;
+    }
+    
+    .footer-links a:hover {
+      color: #7d6c4e;
+    }
+    
+    .footer-social {
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+    }
+    
+    .footer-social h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5em;
+      font-weight: 600;
+    }
+    
+    .footer-social-icons {
+      display: flex;
+      gap: 1em;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      color: #7d6c4e;
+      font-size: 0.9rem;
+      padding-top: 2em;
+      border-top: 1px solid #ddd;
+    }
+    
+    @media (max-width: 900px) {
+      .hero {
+        flex-direction: column;
+        padding: 3em 5vw;
+        min-height: 400px;
+      }
+      
+      .hero-content {
+        text-align: center;
+      }
+      
+      .hero-content h2 {
+        font-size: 2.5rem;
+      }
+      
+      .hero-content .collection {
+        font-size: 1.5rem;
+      }
+      
+      .hero-content .tagline {
+        font-size: 1.1rem;
+      }
+      
+      .products-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+      }
+      
+      .footer-container {
+        flex-direction: column;
+        gap: 2em;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .logo h1 {
+        font-size: 1.6rem;
+      }
+      
+      .logo p {
+        font-size: 0.8rem;
+      }
+      
+      .nav {
+        flex-wrap: wrap;
+        gap: 1em;
+        font-size: 0.95rem;
+      }
+      
+      .hero-content h2 {
+        font-size: 2rem;
+      }
+      
+      .hero-content .collection {
+        font-size: 1.3rem;
+      }
+      
+      .hero-content .tagline {
+        font-size: 1rem;
+      }
+      
+      .hero-content .shop-btn {
+        padding: 0.8em 2em;
+        font-size: 1rem;
+      }
+      
+      .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 1.2em;
+      }
+      
+      .about-text h2 {
+        font-size: 1.8rem;
+      }
+      
+      .about-text p {
+        font-size: 1rem;
+      }
+      
+      .about-img img {
+        max-width: 300px;
+        height: 280px;
+      }
+      
+      .newsletter-container h2 {
+        font-size: 1.8rem;
+      }
+      
+      .newsletter-container p {
+        font-size: 1rem;
+      }
+      
+      .newsletter-form {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .newsletter-form input[type="email"] {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .newsletter-form button {
+        width: 100%;
+        max-width: 250px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      header {
+        padding: 1em 4vw 0.5em 4vw;
+      }
+      
+      .header-left {
+        gap: 0.8em;
+      }
+      
+      .icon {
+        width: 18px;
+        height: 18px;
+      }
+      
+      .logo h1 {
+        font-size: 1.3rem;
+      }
+      
+      .logo p {
+        font-size: 0.7rem;
+      }
+      
+      .nav {
+        gap: 0.8em;
+        padding: 0.8em 0 0.4em 0;
+        font-size: 0.85rem;
+      }
+      
+      .hero {
+        padding: 2em 4vw;
+        min-height: 350px;
+      }
+      
+      .hero-content h2 {
+        font-size: 1.8rem;
+      }
+      
+      .hero-content .collection {
+        font-size: 1.2rem;
+      }
+      
+      .hero-content .tagline {
+        font-size: 0.95rem;
+      }
+      
+      .hero-content .shop-btn {
+        padding: 0.7em 1.8em;
+        font-size: 0.95rem;
+      }
+      
+      .featured-products,
+      .about-section,
+      .testimonials-section,
+      .newsletter-section {
+        padding: 2.5em 4vw;
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+      
+      .product-card {
+        padding: 1.2em;
+      }
+      
+      .product-card img {
+        height: 180px;
+      }
+      
+      .about-text h2 {
+        font-size: 1.5rem;
+      }
+      
+      .about-text p {
+        font-size: 0.95rem;
+      }
+      
+      .about-img img {
+        max-width: 100%;
+        height: 250px;
+      }
+      
+      .testimonial-card {
+        padding: 1.5em 1em;
+      }
+      
+      .testimonial-card p {
+        font-size: 0.95rem;
+      }
+      
+      .newsletter-container h2 {
+        font-size: 1.5rem;
+      }
+      
+      .newsletter-container p {
+        font-size: 0.95rem;
+      }
+      
+      .footer {
+        padding: 2em 4vw 1em 4vw;
+      }
+      
+      .footer-logo h3 {
+        font-size: 1.2rem;
+      }
+      
+      .footer-links h4,
+      .footer-social h4 {
+        font-size: 1rem;
+      }
+      
+      .footer-links a {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    ♡ FREE SHIPPING ON ORDERS OVER PKR5000/= ♡
+  </div>
+  
+  <header>
+    <div class="header-left">
+      <a href="#">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+      </a>
+      <a href="#">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      </a>
+      <a href="#">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+        </svg>
+      </a>
+      <a href="#">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+        </svg>
+      </a>
+    </div>
+    <div class="logo">
+      <h1>Aura & Co</h1>
+      <p>Customized Beauitful Jewelry</p>
+    </div>
+    <div class="header-right">
+      <a href="#" style="position: relative;">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+      </a>
+    </div>
+  </header>
+  
+  <nav class="nav">
+    <a href="#" class="active">Home</a>
+    <a href="#">Catalog</a>
+    <div class="dropdown">
+      <a href="#">Collections ▾</a>
+      <div class="dropdown-content">
+        <a href="#">Summer</a>
+        <a href="#">Pearl</a>
+        <a href="#">Gold</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <a href="#">Discover ▾</a>
+      <div class="dropdown-content">
+        <a href="#">Our Story</a>
+        <a href="#">Blog</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <a href="#">Customer Care ▾</a>
+      <div class="dropdown-content">
+        <a href="#">Contact</a>
+        <a href="#">FAQ</a>
+        <a href="#">Shipping & Returns</a>
+      </div>
+    </div>
+  </nav>
+  
+  <section class="hero">
+    <div class="hero-images">
+      <div class="hero-img-arch">
+        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80" alt="Jewelry 1">
+      </div>
+      <div class="hero-img-arch">
+        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80" alt="Jewelry 2">
+      </div>
+    </div>
+    <div class="hero-content">
+      <h2>SUMMER</h2>
+      <div class="collection">collection</div>
+      <div class="tagline">WHERE GLAMOUR MEETS ARTISTRY</div>
+      <button class="shop-btn">SHOP NOW</button>
+    </div>
+  </section>
+  
+  <!-- Featured Products Section -->
+  <section class="featured-products">
+    <h2 class="section-title">Featured Products</h2>
+    <div class="products-grid">
+      <div class="product-card">
+        <img src="WhatsApp Image 2025-12-29 at 17.58.30 (1).jpeg" alt="Jewelry Collection 1">
+        <div class="product-info">
+          <div class="product-name">Elegant Statement Piece</div>
+          <div class="product-price">PKR 600</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <img src="WhatsApp Image 2025-12-29 at 17.58.31 (1).jpeg" alt="Jewelry Collection 2">
+        <div class="product-info">
+          <div class="product-name">Designer Collection</div>
+          <div class="product-price">PKR 500</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <img src="WhatsApp Image 2025-12-29 at 17.58.31.jpeg" alt="Jewelry Collection 3">
+        <div class="product-info">
+          <div class="product-name">Signature Piece</div>
+          <div class="product-price">PKR 600</div>
+        </div>
+      </div>
+      <div class="product-card">
+        <img src="WhatsApp Image 2025-12-29 at 17.58.30.jpeg" alt="Jewelry Collection 4">
+        <div class="product-info">
+          <div class="product-name">Classic Elegance</div>
+          <div class="product-price">PKR 600</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- About/Brand Story Section -->
+  <section class="about-section">
+    <div class="about-container">
+      <div class="about-text">
+        <h2>About Aura & Co</h2>
+        <p>Aura & Co is dedicated to crafting beautiful, timeless jewelry that celebrates individuality and elegance. Each piece is thoughtfully designed with care, using the finest materials to help you express your unique style.</p>
+        <p>We believe that jewelry is more than an accessory—it's a way to mark life's special moments and tell your story. Discover the artistry and passion behind every creation.</p>
+      </div>
+      <div class="about-img">
+        <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80" alt="About Aura & Co">
+      </div>
+    </div>
+  </section>
+  
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <h2 class="section-title">What Our Customers Say</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p>"Absolutely stunning pieces! The quality and design are unmatched. I get compliments every time I wear my necklace from Aura & Co."</p>
+        <div class="testimonial-author">— Asma</div>
+      </div>
+      <div class="testimonial-card">
+        <p>"Fast shipping and beautiful packaging. The rings are even more gorgeous in person. Couldn't be happier with my purchase!"</p>
+        <div class="testimonial-author">— Mariyum.</div>
+      </div>
+      <div class="testimonial-card">
+        <p>"Aura & Co is my go-to for gifts. Their jewelry always makes my loved ones feel special and appreciated."</p>
+        <div class="testimonial-author">— Maliha.</div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Newsletter Signup Section -->
+  <section class="newsletter-section">
+    <div class="newsletter-container">
+      <h2>Stay in the Loop</h2>
+      <p>Subscribe to our newsletter for exclusive offers, new arrivals, and jewelry inspiration.</p>
+      <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing!');">
+        <input type="email" placeholder="Enter your email address" required>
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </section>
+  
+  <!-- Footer Section -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-logo">
+        <h3>Aura & Co</h3>
+        <p>Customized Beauitful Jewelry</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <a href="#">Home</a>
+        <a href="#">Catalog</a>
+        <a href="#">Collections</a>
+        <a href="#">About Us</a>
+      </div>
+      <div class="footer-links">
+        <h4>Customer Care</h4>
+        <a href="#">Contact</a>
+        <a href="#">FAQ</a>
+        <a href="#">Shipping & Returns</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+      <div class="footer-social">
+        <h4>Follow Us</h4>
+        <div class="footer-social-icons">
+          <a href="#">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+          </a>
+          <a href="#">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </a>
+          <a href="#">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+            </svg>
+          </a>
+          <a href="#">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 Aura & Co. All rights reserved.
+    </div>
+  </footer>
+
+</body>
+</html>
