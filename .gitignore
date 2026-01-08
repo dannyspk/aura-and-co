@@ -3,3 +3,4 @@ node_modules/
 .DS_Store
 data/products.json
 data/orders.json
+.vercel
