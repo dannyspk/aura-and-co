@@ -59,30 +59,72 @@ async function loadProducts() {
         products.length = 0;
         products.push(...fetchedProducts);
         
+        console.log('📦 Loaded products:', products.map(p => ({ id: p.id, name: p.name, image: p.image?.substring(0, 50) + '...' })));
+        
         const tbody = document.getElementById('productsTableBody');
         tbody.innerHTML = '';
         
         products.forEach(product => {
             const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${product.id}</td>
-                <td><img src="${product.image}" class="product-image" alt="${product.name}"></td>
-                <td>${product.name}</td>
-                <td>${capitalizeFirst(product.category)}</td>
-                <td>Rs ${product.price.toLocaleString('en-PK')}</td>
-                <td>${product.badge ? `<span class="product-badge">${product.badge}</span>` : '-'}</td>
-                <td>${product.featured ? '⭐ Yes' : 'No'}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn-edit" onclick="editProduct(${product.id})">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn-delete" onclick="deleteProduct(${product.id})">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </td>
+            
+            // Create cells
+            const cellId = document.createElement('td');
+            cellId.textContent = product.id;
+            
+            const cellImage = document.createElement('td');
+            const img = document.createElement('img');
+            img.src = product.image || 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2760%27 height=%2760%27%3E%3Crect fill=%27%23ddd%27 width=%2760%27 height=%2760%27/%3E%3C/svg%3E';
+            img.alt = product.name;
+            img.className = 'product-image';
+            img.setAttribute('width', '60');
+            img.setAttribute('height', '60');
+            img.style.cssText = 'width: 60px !important; height: 60px !important; min-width: 60px !important; min-height: 60px !important; display: block !important; object-fit: contain !important; background: #f5f5f5; border-radius: 8px; border: 2px solid #ddd;';
+            cellImage.appendChild(img);
+            
+            const cellName = document.createElement('td');
+            cellName.textContent = product.name;
+            
+            const cellCategory = document.createElement('td');
+            cellCategory.textContent = capitalizeFirst(product.category);
+            
+            const cellPrice = document.createElement('td');
+            cellPrice.textContent = `Rs ${product.price.toLocaleString('en-PK')}`;
+            
+            const cellBadge = document.createElement('td');
+            if (product.badge) {
+                const badge = document.createElement('span');
+                badge.className = 'product-badge';
+                badge.textContent = product.badge;
+                cellBadge.appendChild(badge);
+            } else {
+                cellBadge.textContent = '-';
+            }
+            
+            const cellFeatured = document.createElement('td');
+            cellFeatured.textContent = product.featured ? '⭐ Yes' : 'No';
+            
+            const cellActions = document.createElement('td');
+            cellActions.innerHTML = `
+                <div class="action-buttons">
+                    <button class="btn-edit" onclick="editProduct(${product.id})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn-delete" onclick="deleteProduct(${product.id})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
             `;
+            
+            // Append cells to row
+            row.appendChild(cellId);
+            row.appendChild(cellImage);
+            row.appendChild(cellName);
+            row.appendChild(cellCategory);
+            row.appendChild(cellPrice);
+            row.appendChild(cellBadge);
+            row.appendChild(cellFeatured);
+            row.appendChild(cellActions);
+            
             tbody.appendChild(row);
         });
     } catch (error) {
