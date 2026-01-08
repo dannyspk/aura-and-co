@@ -1,44 +1,35 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/admin",
-      "destination": "/admin.html"
-    },
-    {
-      "source": "/shop",
-      "destination": "/shop.html"
-    },
-    {
-      "source": "/checkout",
-      "destination": "/checkout.html"
-    },
-    {
-      "source": "/order-confirmation",
-      "destination": "/order-confirmation.html"
+      "src": "server.js",
+      "use": "@vercel/node"
     }
   ],
-  "redirects": [
+  "routes": [
     {
-      "source": "/shop.html",
-      "destination": "/shop",
-      "permanent": true
+      "src": "/api/(.*)",
+      "dest": "server.js"
     },
     {
-      "source": "/checkout.html",
-      "destination": "/checkout",
-      "permanent": true
+      "src": "/admin",
+      "dest": "/admin.html"
     },
     {
-      "source": "/order-confirmation.html",
-      "destination": "/order-confirmation",
-      "permanent": true
+      "src": "/shop",
+      "dest": "/shop.html"
     },
     {
-      "source": "/admin.html",
-      "destination": "/admin",
-      "permanent": true
+      "src": "/checkout",
+      "dest": "/checkout.html"
+    },
+    {
+      "src": "/order-confirmation",
+      "dest": "/order-confirmation.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ],
   "headers": [

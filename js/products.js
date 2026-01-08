@@ -119,7 +119,7 @@ const products = [
 // Load products from API
 async function loadProductsFromAPI() {
     try {
-        const response = await fetch('http://localhost:3000/api/products');
+        const response = await fetch('/api/products');
         const fetchedProducts = await response.json();
         
         if (fetchedProducts && fetchedProducts.length > 0) {

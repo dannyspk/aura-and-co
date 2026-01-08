@@ -52,7 +52,7 @@ function logout() {
 // Load products into table
 async function loadProducts() {
     try {
-        const response = await fetch('http://localhost:3000/api/products');
+        const response = await fetch('/api/products');
         const fetchedProducts = await response.json();
         
         // Update local products array
@@ -149,7 +149,7 @@ async function deleteProduct(id) {
     if (!confirm('Are you sure you want to delete this product?')) return;
     
     try {
-        const response = await fetch(`http://localhost:3000/api/products/${id}`, {
+        const response = await fetch(`/api/products/${id}`, {
             method: 'DELETE'
         });
         
@@ -259,7 +259,7 @@ document.getElementById('productImageFile').addEventListener('change', async fun
             };
             reader.readAsDataURL(file);
             
-            const response = await fetch('http://localhost:3000/api/upload-image', {
+            const response = await fetch('/api/upload-image', {
                 method: 'POST',
                 body: formData
             });
@@ -356,7 +356,7 @@ document.getElementById('productForm').addEventListener('submit', async function
         if (id) {
             // Update existing product
             console.log('Updating product:', { id, name, image });
-            const response = await fetch(`http://localhost:3000/api/products/${id}`, {
+            const response = await fetch(`/api/products/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(productData)
@@ -370,7 +370,7 @@ document.getElementById('productForm').addEventListener('submit', async function
         } else {
             // Add new product
             console.log('Adding new product:', { name, image });
-            const response = await fetch('http://localhost:3000/api/products', {
+            const response = await fetch('/api/products', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(productData)
@@ -428,7 +428,7 @@ function switchTab(tabName) {
 // Load orders into table
 async function loadOrders() {
     try {
-        const response = await fetch('http://localhost:3000/api/orders');
+        const response = await fetch('/api/orders');
         const orders = await response.json();
         
         const tbody = document.getElementById('ordersTableBody');
@@ -479,7 +479,7 @@ async function loadOrders() {
 async function filterOrders() {
     try {
         const filterValue = document.getElementById('orderStatusFilter').value;
-        const response = await fetch('http://localhost:3000/api/orders');
+        const response = await fetch('/api/orders');
         const orders = await response.json();
         const tbody = document.getElementById('ordersTableBody');
         
@@ -526,7 +526,7 @@ async function filterOrders() {
 // View order details
 async function viewOrderDetails(orderId) {
     try {
-        const response = await fetch('http://localhost:3000/api/orders');
+        const response = await fetch('/api/orders');
         const orders = await response.json();
         const order = orders.find(o => (o.orderId || o.orderNumber) === orderId);
         
@@ -659,7 +659,7 @@ async function updateOrder(event, orderId) {
     const tracking = document.getElementById('trackingNumber').value;
     
     try {
-        const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
+        const response = await fetch(`/api/orders/${orderId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status, tracking })
