@@ -76,8 +76,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Initial render
-    renderProducts();
+    // Wait for products to load from API before initial render
+    window.addEventListener('productsLoaded', function() {
+        renderProducts();
+    });
+    
+    // If products are already loaded, render immediately
+    if (products.length > 0 && products[0].updatedAt) {
+        renderProducts();
+    }
 });
 
 // Add to cart function

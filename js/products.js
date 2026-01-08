@@ -116,18 +116,31 @@ const products = [
     }
 ];
 
-// Load products from localStorage if available (syncs with admin changes)
-function loadProductsFromStorage() {
-    const saved = localStorage.getItem('auraProducts');
-    if (saved) {
-        // Replace the products array with saved data
-        products.length = 0;
-        products.push(...JSON.parse(saved));
+// Load products from API
+async function loadProductsFromAPI() {
+    try {
+        const response = await fetch('http://localhost:3000/api/products');
+        const fetchedProducts = await response.json();
+        
+        if (fetchedProducts && fetchedProducts.length > 0) {
+            // Replace the products array with API data
+            products.length = 0;
+            products.push(...fetchedProducts);
+            console.log(`✅ Loaded ${products.length} products from API`);
+            
+            // Trigger a custom event to notify pages that products are loaded
+            window.dispatchEvent(new CustomEvent('productsLoaded'));
+        }
+    } catch (error) {
+        console.error('Error loading products from API:', error);
+        console.log('📦 Using default products');
+        // Still dispatch event even if using defaults
+        window.dispatchEvent(new CustomEvent('productsLoaded'));
     }
 }
 
-// Initialize products from localStorage
-loadProductsFromStorage();
+// Initialize products from API
+loadProductsFromAPI();
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {

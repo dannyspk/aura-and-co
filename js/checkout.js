@@ -233,7 +233,7 @@ function displayReview() {
 }
 
 // Place order
-function placeOrder() {
+async function placeOrder() {
     // Show loading state
     const btn = event.target;
     const originalText = btn.innerHTML;
@@ -241,11 +241,11 @@ function placeOrder() {
     btn.disabled = true;
     
     // Simulate order processing
-    setTimeout(() => {
+    setTimeout(async () => {
         // Generate order number
         const orderNumber = 'AUR' + Date.now().toString().slice(-8);
         
-        // Save order to localStorage
+        // Prepare order data
         const order = {
             orderNumber: orderNumber,
             date: new Date().toISOString(),
@@ -260,19 +260,40 @@ function placeOrder() {
             tracking: ''
         };
         
-        // Save to last order (for confirmation page)
-        localStorage.setItem('lastOrder', JSON.stringify(order));
-        
-        // Add to orders list
-        let orders = JSON.parse(localStorage.getItem('auraOrders') || '[]');
-        orders.push(order);
-        localStorage.setItem('auraOrders', JSON.stringify(orders));
-        
-        // Clear cart
-        cart.clearCart();
-        
-        // Redirect to confirmation
-        window.location.href = 'order-confirmation.html?order=' + orderNumber;
+        // Save order to API
+        try {
+            const response = await fetch('http://localhost:3000/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('✅ Order saved to database:', data.order.orderId);
+                
+                // Save to last order (for confirmation page)
+                localStorage.setItem('lastOrder', JSON.stringify(data.order));
+                
+                // Clear cart
+                cart.clearCart();
+                
+                // Redirect to confirmation
+                window.location.href = 'order-confirmation.html?order=' + orderNumber;
+            } else {
+                throw new Error(data.error || 'Failed to save order');
+            }
+        } catch (error) {
+            console.error('Error saving order:', error);
+            alert('Failed to place order. Please try again.');
+            // Re-enable the button
+            const submitBtn = document.getElementById('placeOrderBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Place Order';
+            }
+        }
     }, 2000);
 }
 

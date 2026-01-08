@@ -1473,8 +1473,15 @@
     
     // Set up event listeners when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-      // Render featured products from the products array (which now includes localStorage updates)
-      renderFeaturedProducts();
+      // Wait for products to load from API before rendering
+      window.addEventListener('productsLoaded', function() {
+        renderFeaturedProducts();
+      });
+      
+      // If products are already loaded (shouldn't happen but just in case)
+      if (products.length > 0 && products[0].updatedAt) {
+        renderFeaturedProducts();
+      }
       
       // Update cart UI now that DOM is ready
       window.cart.updateCartCount();
