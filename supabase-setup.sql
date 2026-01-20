@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS products (
     name TEXT NOT NULL,
     category TEXT NOT NULL,
     price INTEGER NOT NULL,
-    image TEXT,
+    image TEXT, -- Primary/main image (kept for backward compatibility)
+    images TEXT[], -- Array of image URLs for multiple images
     description TEXT,
     badge TEXT,
     featured BOOLEAN DEFAULT false,

@@ -96,7 +96,7 @@ function addToCart(productId, event) {
     
     const product = products.find(p => p.id === productId);
     if (product) {
-        cart.addItem(product);
+        window.cart.addItem(product);
         
         // Visual feedback
         const btn = event ? event.target.closest('button') : null;

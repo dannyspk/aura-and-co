@@ -142,6 +142,11 @@
             height: fit-content;
         }
 
+        .main-image-container {
+            position: relative;
+            width: 100%;
+        }
+
         .main-image {
             width: 100%;
             aspect-ratio: 1;
@@ -151,25 +156,66 @@
             border: 1px solid #eee;
         }
 
-        .thumbnail-images {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+        /* Image Navigation Arrows */
+        .image-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #7d6c4e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+            z-index: 10;
         }
 
-        .thumbnail {
+        .image-nav-btn:hover {
+            background: #7d6c4e;
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .image-nav-btn.prev-btn {
+            left: 15px;
+        }
+
+        .image-nav-btn.next-btn {
+            right: 15px;
+        }
+
+        .image-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .thumbnail-image {
             width: 100%;
             aspect-ratio: 1;
             object-fit: cover;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            border: 2px solid transparent;
+            border: 2px solid #ddd;
             transition: all 0.3s;
         }
 
-        .thumbnail:hover,
-        .thumbnail.active {
+        .thumbnail-image:hover {
             border-color: #7d6c4e;
+            transform: scale(1.05);
+        }
+
+        .thumbnail-image.active {
+            border-color: #7d6c4e;
+            border-width: 3px;
         }
 
         /* Product Info Section */
@@ -239,6 +285,48 @@
             color: #222;
         }
 
+        /* Size Selector */
+        .size-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .size-label {
+            font-weight: 500;
+            color: #222;
+            font-size: 1rem;
+        }
+
+        .size-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .size-option {
+            min-width: 50px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .size-option:hover {
+            border-color: #7d6c4e;
+        }
+
+        .size-option.selected {
+            border-color: #7d6c4e;
+            background: #7d6c4e;
+            color: white;
+        }
+
         /* Quantity Selector */
         .quantity-selector {
             display: flex;
@@ -280,6 +368,52 @@
             font-size: 1rem;
             font-weight: 500;
             padding: 10px 0;
+        }
+
+        /* Custom Request Field */
+        .custom-request-field {
+            margin-bottom: 25px;
+        }
+
+        .custom-request-label {
+            display: block;
+            font-weight: 500;
+            color: #222;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .custom-request-label i {
+            color: #7d6c4e;
+            margin-right: 5px;
+        }
+
+        .custom-request-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .custom-request-textarea:focus {
+            outline: none;
+            border-color: #7d6c4e;
+        }
+
+        .custom-request-textarea::placeholder {
+            color: #999;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
         }
 
         /* Action Buttons */
@@ -438,9 +572,61 @@
             margin: 0 auto;
             text-align: center;
         }
+        
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5em;
+        }
+        
+        .mobile-menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #222;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+        
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+        
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .mobile-menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
             .product-main {
                 grid-template-columns: 1fr;
                 gap: 30px;
@@ -464,6 +650,21 @@
 
             .products-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Adjust navigation buttons for mobile */
+            .image-nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .image-nav-btn.prev-btn {
+                left: 10px;
+            }
+
+            .image-nav-btn.next-btn {
+                right: 10px;
             }
         }
 
@@ -500,7 +701,7 @@
 <body>
     <!-- Top Bar -->
     <div class="top-bar">
-        FREE SHIPPING ON ORDERS OVER RS 50,000
+        FREE SHIPPING ON ORDERS OVER RS 5,000
     </div>
 
     <!-- Header -->
@@ -511,7 +712,7 @@
             </svg>
         </div>
         <div class="logo">
-            <h1><a href="index.html">AURA & CO</a></h1>
+            <h1><a href="/">AURA & CO</a></h1>
             <p>CUSTOMIZED BEAUTIFUL JEWELRY</p>
         </div>
         <div class="header-right">
@@ -524,8 +725,15 @@
                 </svg>
                 <span class="cart-count" id="cartCount">0</span>
             </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </header>
+    
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
     <!-- Product Details Container -->
     <div class="product-details-container" id="productContainer">
@@ -539,6 +747,24 @@
         </div>
     </footer>
 
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button class="close-cart" id="closeCart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">Rs 0</span>
+            </div>
+            <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cartOverlay"></div>
+
+    <script src="js/categories.js"></script>
     <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
     <script>
@@ -550,7 +776,13 @@
         const productId = parseInt(urlParams.get('id'));
 
         // Load product details
-        function loadProductDetails() {
+        async function loadProductDetails() {
+            // Wait for products to load from API if not already loaded
+            if (products.length === 0 || !products[0].updatedAt) {
+                await new Promise(resolve => {
+                    window.addEventListener('productsLoaded', resolve, { once: true });
+                });
+            }
             const container = document.getElementById('productContainer');
             
             if (!productId) {
@@ -559,7 +791,7 @@
                         <h2>Product Not Found</h2>
                         <p>The product you're looking for doesn't exist.</p>
                         <br>
-                        <a href="shop.html">← Back to Shop</a>
+                        <a href="/shop">← Back to Shop</a>
                     </div>
                 `;
                 return;
@@ -573,11 +805,15 @@
                         <h2>Product Not Found</h2>
                         <p>The product you're looking for doesn't exist.</p>
                         <br>
-                        <a href="shop.html">← Back to Shop</a>
+                        <a href="/shop">← Back to Shop</a>
                     </div>
                 `;
                 return;
             }
+
+            // Store current product globally for navigation
+            currentProduct = product;
+            window.currentImageIndex = 0;
 
             // Get related products (same category, exclude current product)
             const relatedProducts = products
@@ -588,8 +824,8 @@
             container.innerHTML = `
                 <!-- Breadcrumb -->
                 <div class="breadcrumb">
-                    <a href="index.html">Home</a> / 
-                    <a href="shop.html">Shop</a> / 
+                    <a href="/">Home</a> / 
+                    <a href="/shop">Shop</a> / 
                     <a href="shop.html?category=${product.category}">${capitalizeFirst(product.category)}</a> / 
                     <span>${product.name}</span>
                 </div>
@@ -598,8 +834,24 @@
                 <div class="product-main">
                     <!-- Product Images -->
                     <div class="product-images">
-                        <img src="${product.image}" alt="${product.name}" class="main-image" id="mainImage">
-                        <!-- Thumbnails would go here if we had multiple images -->
+                        <div class="main-image-container">
+                            <img src="${(product.images && product.images.length > 0) ? product.images[0] : product.image}" alt="${product.name}" class="main-image" id="mainImage">
+                            ${(product.images && product.images.length > 1) ? `
+                            <button class="image-nav-btn prev-btn" onclick="navigateImage(-1)" aria-label="Previous image">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="image-nav-btn next-btn" onclick="navigateImage(1)" aria-label="Next image">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                        ${(product.images && product.images.length > 1) ? `
+                        <div class="image-thumbnails">
+                            ${product.images.map((img, index) => `
+                                <img src="${img}" alt="${product.name} ${index + 1}" class="thumbnail-image${index === 0 ? ' active' : ''}" onclick="changeMainImage('${img}', this, ${index})">
+                            `).join('')}
+                        </div>
+                        ` : ''}
                     </div>
 
                     <!-- Product Info -->
@@ -626,6 +878,22 @@
                             </div>
                         </div>
 
+                        <!-- Size Selector (for rings) -->
+                        ${product.category === 'rings' ? `
+                        <div class="size-selector">
+                            <span class="size-label">Select Size (US):</span>
+                            <div class="size-options">
+                                <div class="size-option" data-size="5" onclick="selectSize(this, 5)">5</div>
+                                <div class="size-option" data-size="6" onclick="selectSize(this, 6)">6</div>
+                                <div class="size-option" data-size="7" onclick="selectSize(this, 7)">7</div>
+                                <div class="size-option selected" data-size="8" onclick="selectSize(this, 8)">8</div>
+                                <div class="size-option" data-size="9" onclick="selectSize(this, 9)">9</div>
+                                <div class="size-option" data-size="10" onclick="selectSize(this, 10)">10</div>
+                                <div class="size-option" data-size="11" onclick="selectSize(this, 11)">11</div>
+                            </div>
+                        </div>
+                        ` : ''}
+
                         <!-- Quantity Selector -->
                         <div class="quantity-selector">
                             <span class="quantity-label">Quantity:</span>
@@ -633,6 +901,23 @@
                                 <button class="qty-btn" onclick="decreaseQuantity()">−</button>
                                 <input type="number" class="qty-input" id="quantity" value="1" min="1" max="10" readonly>
                                 <button class="qty-btn" onclick="increaseQuantity()">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Custom Request Field -->
+                        <div class="custom-request-field">
+                            <label for="customRequest" class="custom-request-label">
+                                <i class="fas fa-edit"></i> Custom Request (Optional)
+                            </label>
+                            <textarea 
+                                id="customRequest" 
+                                class="custom-request-textarea" 
+                                placeholder="Add any customization requests, special instructions, or modifications you'd like for this item..."
+                                rows="3"
+                                maxlength="500"
+                            ></textarea>
+                            <div class="char-count">
+                                <span id="charCount">0</span>/500 characters
                             </div>
                         </div>
 
@@ -652,7 +937,7 @@
                             <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-truck"></i></div>
                                 <div class="feature-title">Free Shipping</div>
-                                <div class="feature-desc">On orders over Rs 50,000</div>
+                                <div class="feature-desc">On orders over Rs 5,000</div>
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
@@ -691,6 +976,20 @@
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
+        // Size selection
+        let selectedSize = 8; // Default size
+        
+        function selectSize(element, size) {
+            // Remove selected class from all options
+            document.querySelectorAll('.size-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            selectedSize = size;
+        }
+
         // Quantity controls
         function increaseQuantity() {
             const input = document.getElementById('quantity');
@@ -712,9 +1011,22 @@
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             const quantity = parseInt(document.getElementById('quantity').value);
+            const customRequest = document.getElementById('customRequest')?.value.trim() || '';
             
             if (product) {
-                window.cart.addItem(product, quantity);
+                // Add size info for rings and custom request
+                const productToAdd = {...product};
+                if (product.category === 'rings') {
+                    productToAdd.selectedSize = selectedSize;
+                    productToAdd.displayName = `${product.name} (Size ${selectedSize})`;
+                }
+                
+                // Add custom request if provided
+                if (customRequest) {
+                    productToAdd.customRequest = customRequest;
+                }
+                
+                window.cart.addItem(productToAdd, quantity);
                 
                 // Show success message
                 const btn = event.target.closest('button');
@@ -733,26 +1045,146 @@
         function buyNow(productId) {
             const product = products.find(p => p.id === productId);
             const quantity = parseInt(document.getElementById('quantity').value);
+            const customRequest = document.getElementById('customRequest')?.value.trim() || '';
             
             if (product) {
-                window.cart.addItem(product, quantity);
-                window.location.href = 'checkout.html';
+                // Add size info for rings and custom request
+                const productToAdd = {...product};
+                if (product.category === 'rings') {
+                    productToAdd.selectedSize = selectedSize;
+                    productToAdd.displayName = `${product.name} (Size ${selectedSize})`;
+                }
+                
+                // Add custom request if provided
+                if (customRequest) {
+                    productToAdd.customRequest = customRequest;
+                }
+                
+                window.cart.addItem(productToAdd, quantity);
+                window.location.href = '/checkout';
             }
         }
 
+        // Change main image when thumbnail is clicked
+        function changeMainImage(imageUrl, thumbnail, index) {
+            const mainImage = document.getElementById('mainImage');
+            mainImage.src = imageUrl;
+            
+            // Update active thumbnail
+            document.querySelectorAll('.thumbnail-image').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            thumbnail.classList.add('active');
+            
+            // Store current index
+            window.currentImageIndex = index;
+        }
+
+        // Navigate through images with arrows
+        function navigateImage(direction) {
+            if (!currentProduct || !currentProduct.images || currentProduct.images.length <= 1) {
+                return;
+            }
+
+            const images = currentProduct.images;
+            const currentIndex = window.currentImageIndex || 0;
+            let newIndex = currentIndex + direction;
+
+            // Wrap around
+            if (newIndex < 0) {
+                newIndex = images.length - 1;
+            } else if (newIndex >= images.length) {
+                newIndex = 0;
+            }
+
+            // Update main image
+            const mainImage = document.getElementById('mainImage');
+            mainImage.src = images[newIndex];
+
+            // Update active thumbnail
+            const thumbnails = document.querySelectorAll('.thumbnail-image');
+            thumbnails.forEach((thumb, index) => {
+                if (index === newIndex) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+
+            // Store new index
+            window.currentImageIndex = newIndex;
+        }
+
+        // Global variable to store current product
+        let currentProduct = null;
+
+        // Keyboard navigation for images
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                navigateImage(-1);
+            } else if (e.key === 'ArrowRight') {
+                navigateImage(1);
+            }
+        });
+
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProductDetails();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadProductDetails();
             window.cart.updateCartCount();
 
             // Cart icon click
             const cartIcon = document.getElementById('cartIcon');
             if (cartIcon) {
-                cartIcon.addEventListener('click', function() {
-                    window.location.href = 'checkout.html';
+                cartIcon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('cartSidebar').classList.add('open');
+                    document.getElementById('cartOverlay').classList.add('open');
+                    window.cart.updateCartUI();
                 });
             }
+
+            // Close cart sidebar
+            const closeCart = document.getElementById('closeCart');
+            if (closeCart) {
+                closeCart.addEventListener('click', function() {
+                    document.getElementById('cartSidebar').classList.remove('open');
+                    document.getElementById('cartOverlay').classList.remove('open');
+                });
+            }
+
+            // Close cart when clicking overlay
+            const cartOverlay = document.getElementById('cartOverlay');
+            if (cartOverlay) {
+                cartOverlay.addEventListener('click', function() {
+                    document.getElementById('cartSidebar').classList.remove('open');
+                    document.getElementById('cartOverlay').classList.remove('open');
+                });
+            }
+
+            // Character counter for custom request field
+            // Use setTimeout to ensure the textarea is rendered after loadProductDetails
+            setTimeout(() => {
+                const customRequestTextarea = document.getElementById('customRequest');
+                const charCountSpan = document.getElementById('charCount');
+                
+                if (customRequestTextarea && charCountSpan) {
+                    customRequestTextarea.addEventListener('input', function() {
+                        const currentLength = this.value.length;
+                        charCountSpan.textContent = currentLength;
+                        
+                        // Optional: Change color when approaching limit
+                        if (currentLength > 450) {
+                            charCountSpan.style.color = '#d32f2f';
+                        } else if (currentLength > 400) {
+                            charCountSpan.style.color = '#f57c00';
+                        } else {
+                            charCountSpan.style.color = '#666';
+                        }
+                    });
+                }
+            }, 100);
         });
     </script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

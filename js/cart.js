@@ -48,24 +48,21 @@ class ShoppingCart {
     updateQuantity(productId, quantity) {
         const item = this.items.find(item => item.id === productId);
         
-        if (item && quantity > 0) {
+        // Set maximum quantity per item
+        const MAX_QUANTITY = 10;
+        
+        if (item && quantity > 0 && quantity <= MAX_QUANTITY) {
             item.quantity = quantity;
             localStorage.setItem('auraCart', JSON.stringify(this.items));
             
-            // Update only the specific item's quantity display and price
-            const quantitySpan = document.querySelector(`.cart-item[data-product-id="${productId}"] .cart-item-quantity span`);
-            if (quantitySpan) {
-                quantitySpan.textContent = quantity;
-            }
-            
-            // Update the item's subtotal if displayed
-            const itemSubtotal = document.querySelector(`.cart-item[data-product-id="${productId}"] .item-subtotal`);
-            if (itemSubtotal) {
-                itemSubtotal.textContent = `$${(item.price * quantity).toLocaleString()}`;
-            }
-            
             this.updateCartCount();
             this.updateCartTotal();
+            
+            // Re-render cart items to update display
+            this.renderCartItems();
+        } else if (quantity > MAX_QUANTITY) {
+            // Show notification if trying to exceed max
+            this.showNotification(`Maximum quantity is ${MAX_QUANTITY} per item`);
         } else if (item && quantity <= 0) {
             // If quantity becomes 0 or negative, remove the item
             this.removeItem(productId);
@@ -163,18 +160,19 @@ class ShoppingCart {
             <div class="cart-item" data-product-id="${item.id}">
                 <img src="${item.image}" alt="${item.name}" class="cart-item-image">
                 <div class="cart-item-details">
-                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-name">${item.displayName || item.name}</div>
                     <div class="cart-item-price">Rs ${item.price.toLocaleString('en-PK')}</div>
+                    ${item.customRequest ? `<div class="cart-item-custom"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
                     <div class="cart-item-quantity">
-                        <button class="qty-btn" onclick="cart.updateQuantity(${item.id}, ${item.quantity - 1})">
+                        <button class="qty-btn" onclick="window.cart.updateQuantity(${item.id}, ${item.quantity - 1})">
                             <i class="fas fa-minus"></i>
                         </button>
                         <span>${item.quantity}</span>
-                        <button class="qty-btn" onclick="cart.updateQuantity(${item.id}, ${item.quantity + 1})">
+                        <button class="qty-btn" onclick="window.cart.updateQuantity(${item.id}, ${item.quantity + 1})">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <button class="remove-item-btn" onclick="cart.removeItem(${item.id})">
+                    <button class="remove-item-btn" onclick="window.cart.removeItem(${item.id})">
                         <i class="fas fa-trash"></i> Remove
                     </button>
                 </div>
@@ -274,7 +272,7 @@ function goToCheckout() {
         alert('Your cart is empty!');
         return;
     }
-    window.location.href = 'checkout.html';
+    window.location.href = '/checkout';
 }
 
 // Export cart for use in other scripts

@@ -9,7 +9,7 @@ let orderData = {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if cart is empty
     if (cart.getCount() === 0) {
-        window.location.href = 'shop.html';
+        window.location.href = '/shop';
         return;
     }
 
@@ -24,13 +24,50 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup payment method toggle
     setupPaymentMethodToggle();
+    
+    // Listen for city changes to update shipping
+    const cityField = document.getElementById('city');
+    if (cityField) {
+        cityField.addEventListener('change', updateShippingCost);
+    }
 });
+
+// Calculate shipping cost based on city
+function calculateShipping(city = null) {
+    const subtotal = cart.getTotal();
+    
+    // Free shipping over Rs 5,000
+    if (subtotal >= 5000) {
+        return 0;
+    }
+    
+    // Default shipping for Karachi
+    if (!city || city === 'Karachi') {
+        return 250;
+    }
+    
+    // Higher shipping for outside Karachi
+    return 300;
+}
+
+// Update shipping cost when city changes
+function updateShippingCost() {
+    const city = document.getElementById('city')?.value;
+    const subtotal = cart.getTotal();
+    const shipping = calculateShipping(city);
+    const tax = 0;
+    const total = subtotal + shipping + tax;
+    
+    // Update summary
+    document.getElementById('summaryShipping').textContent = shipping === 0 ? 'FREE' : `Rs ${shipping.toLocaleString('en-PK')}`;
+    document.getElementById('summaryTotal').textContent = `Rs ${total.toLocaleString('en-PK')}`;
+}
 
 // Display order summary
 function displayOrderSummary() {
     const checkoutItems = document.getElementById('checkoutItems');
     const subtotal = cart.getTotal();
-    const shipping = subtotal >= 50000 ? 0 : 500; // Free shipping over Rs 50,000
+    const shipping = calculateShipping(); // Use default (Karachi)
     const tax = 0; // No tax display for Pakistan
     const total = subtotal + shipping + tax;
     
@@ -41,6 +78,7 @@ function displayOrderSummary() {
             <div class="item-details">
                 <div class="item-name">${item.name}</div>
                 <div class="item-quantity">Qty: ${item.quantity}</div>
+                ${item.customRequest ? `<div class="item-custom-request"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
             </div>
             <div class="item-price">Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</div>
         </div>
@@ -226,6 +264,7 @@ function displayReview() {
             <div class="item-info">
                 <div class="item-name">${item.name}</div>
                 <div class="item-meta">Quantity: ${item.quantity} × Rs ${item.price.toLocaleString('en-PK')}</div>
+                ${item.customRequest ? `<div class="item-custom-note"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
             </div>
             <div class="item-total">Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</div>
         </div>
@@ -254,8 +293,8 @@ async function placeOrder() {
             items: orderData.items,
             subtotal: cart.getTotal(),
             tax: 0,
-            shippingCost: cart.getTotal() >= 50000 ? 0 : 500,
-            total: cart.getTotal() + (cart.getTotal() >= 50000 ? 0 : 500),
+            shippingCost: calculateShipping(orderData.shipping.city),
+            total: cart.getTotal() + calculateShipping(orderData.shipping.city),
             status: 'pending',
             tracking: ''
         };
@@ -280,7 +319,7 @@ async function placeOrder() {
                 cart.clearCart();
                 
                 // Redirect to confirmation
-                window.location.href = 'order-confirmation.html?order=' + orderNumber;
+                window.location.href = '/order-confirmation?order=' + orderNumber;
             } else {
                 throw new Error(data.error || 'Failed to save order');
             }

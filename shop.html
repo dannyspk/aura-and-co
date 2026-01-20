@@ -279,20 +279,45 @@
             }
 
             .nav-menu {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
                 background: white;
                 flex-direction: column;
-                padding: 20px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-                gap: 20px;
+                padding: 5em 2em 2em 2em;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                z-index: 1000;
+                transition: left 0.3s ease;
+                gap: 0;
+                overflow-y: auto;
             }
 
             .nav-menu.active {
+                left: 0;
+            }
+            
+            .nav-menu a {
+                padding: 1em 0;
+                width: 100%;
+                border-bottom: 1px solid #f7f2ea;
+                font-size: 1.1rem;
+            }
+            
+            .nav-menu .dropdown > a {
                 display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .nav-menu .dropdown > a::after {
+                content: '▾';
+                transition: transform 0.3s;
+            }
+            
+            .nav-menu .dropdown.active > a::after {
+                transform: rotate(180deg);
             }
 
             .nav-actions {
@@ -302,7 +327,20 @@
             .dropdown-menu {
                 position: static;
                 box-shadow: none;
-                padding-left: 20px;
+                padding-left: 1.5em;
+                background: #f7f2ea;
+                margin-top: 0.5em;
+                display: none;
+            }
+            
+            .dropdown.active .dropdown-menu {
+                display: block;
+            }
+            
+            .dropdown-menu a {
+                padding: 0.8em 0.5em;
+                font-size: 0.95rem;
+                border-bottom: 1px solid #fff;
             }
 
             .footer-container {
@@ -318,15 +356,15 @@
         <nav class="navbar">
             <div class="container">
                 <div class="nav-wrapper">
-                    <a href="index.html" class="logo">
+                    <a href="/" class="logo">
                         <i class="fas fa-gem"></i>
                         <span>Aura & Co</span>
                     </a>
                     
                     <ul class="nav-menu">
-                        <li><a href="index.html">Home</a></li>
+                        <li><a href="/">Home</a></li>
                         <li class="dropdown">
-                            <a href="shop.html" class="active">Collections <i class="fas fa-chevron-down"></i></a>
+                            <a href="/shop" class="active">Collections <i class="fas fa-chevron-down"></i></a>
                             <ul class="dropdown-menu">
                                 <li><a href="shop.html?category=rings">Rings</a></li>
                                 <li><a href="shop.html?category=necklaces">Necklaces</a></li>
@@ -347,13 +385,17 @@
                         </button>
                     </div>
                     
-                    <button class="mobile-menu-toggle">
-                        <i class="fas fa-bars"></i>
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </button>
                 </div>
             </div>
         </nav>
     </header>
+    
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
     <!-- Shop Header -->
     <section class="shop-header">
@@ -428,9 +470,9 @@
             </div>
             <div class="footer-links">
                 <h4>Quick Links</h4>
-                <a href="index.html">Home</a>
-                <a href="shop.html">Catalog</a>
-                <a href="shop.html">Collections</a>
+                <a href="/">Home</a>
+                <a href="/shop">Catalog</a>
+                <a href="/shop">Collections</a>
                 <a href="about.html">About Us</a>
             </div>
             <div class="footer-links">
@@ -471,8 +513,34 @@
         </div>
     </footer>
 
+    <script src="js/categories.js"></script>
     <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/shop.js"></script>
+    <script src="js/mobile-menu.js"></script>
+    <script>
+        // Initialize cart
+        window.cart = new ShoppingCart();
+        
+        // Update cart count on page load
+        window.cart.updateCartCount();
+        
+        // Toggle cart sidebar
+        function toggleCart() {
+            const sidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+            
+            if (sidebar.classList.contains('open')) {
+                window.cart.updateCartUI();
+            }
+        }
+        
+        // Go to checkout
+        function goToCheckout() {
+            window.location.href = '/checkout';
+        }
+    </script>
 </body>
 </html>

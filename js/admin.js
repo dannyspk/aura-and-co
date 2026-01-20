@@ -36,8 +36,17 @@ function showDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminDashboard').style.display = 'block';
     document.getElementById('adminName').textContent = sessionStorage.getItem('adminName') || 'Admin';
-    loadProducts();
-    loadOrders();
+    
+    // Load data - use async/await to handle errors gracefully
+    (async function() {
+        try {
+            await loadCategoryDropdown(); // Try to load categories for product form
+        } catch (error) {
+            console.warn('Categories not available yet. Please run the categories migration.', error);
+        }
+        loadProducts();
+        loadOrders();
+    })();
 }
 
 // Logout
@@ -67,11 +76,13 @@ async function loadProducts() {
         products.forEach(product => {
             const row = document.createElement('tr');
             
-            // Create cells
+            // Create cells with data-label for mobile
             const cellId = document.createElement('td');
+            cellId.setAttribute('data-label', 'ID');
             cellId.textContent = product.id;
             
             const cellImage = document.createElement('td');
+            cellImage.setAttribute('data-label', 'Image');
             const img = document.createElement('img');
             img.src = product.image || 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2760%27 height=%2760%27%3E%3Crect fill=%27%23ddd%27 width=%2760%27 height=%2760%27/%3E%3C/svg%3E';
             img.alt = product.name;
@@ -82,15 +93,19 @@ async function loadProducts() {
             cellImage.appendChild(img);
             
             const cellName = document.createElement('td');
+            cellName.setAttribute('data-label', 'Name');
             cellName.textContent = product.name;
             
             const cellCategory = document.createElement('td');
+            cellCategory.setAttribute('data-label', 'Category');
             cellCategory.textContent = capitalizeFirst(product.category);
             
             const cellPrice = document.createElement('td');
+            cellPrice.setAttribute('data-label', 'Price');
             cellPrice.textContent = `Rs ${product.price.toLocaleString('en-PK')}`;
             
             const cellBadge = document.createElement('td');
+            cellBadge.setAttribute('data-label', 'Badge');
             if (product.badge) {
                 const badge = document.createElement('span');
                 badge.className = 'product-badge';
@@ -101,9 +116,11 @@ async function loadProducts() {
             }
             
             const cellFeatured = document.createElement('td');
+            cellFeatured.setAttribute('data-label', 'Featured');
             cellFeatured.textContent = product.featured ? '⭐ Yes' : 'No';
             
             const cellActions = document.createElement('td');
+            cellActions.setAttribute('data-label', 'Actions');
             cellActions.innerHTML = `
                 <div class="action-buttons">
                     <button class="btn-edit" onclick="editProduct(${product.id})">
@@ -143,12 +160,19 @@ function openAddModal() {
     document.getElementById('modalTitle').textContent = 'Add New Product';
     document.getElementById('productForm').reset();
     document.getElementById('productId').value = '';
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('productModal').style.display = 'block';
+    
+    // Reset images
+    productImages = [];
+    document.getElementById('productImage').value = '';
+    document.getElementById('additionalImagesContainer').innerHTML = '';
+    document.getElementById('imagePreviews').style.display = 'none';
+    document.getElementById('imagePreviews').innerHTML = '';
     
     // Reset to URL method by default
     document.querySelector('input[name="imageMethod"][value="url"]').checked = true;
     toggleImageInputMethod();
+    
+    document.getElementById('productModal').style.display = 'block';
 }
 
 // Edit product
@@ -162,26 +186,45 @@ function editProduct(id) {
     document.getElementById('productCategory').value = product.category;
     document.getElementById('productPrice').value = product.price;
     document.getElementById('productDescription').value = product.description;
-    document.getElementById('productImage').value = product.image.startsWith('data:') ? '' : product.image;
     document.getElementById('productBadge').value = product.badge || '';
     document.getElementById('productFeatured').checked = product.featured || false;
+    
+    // Reset images UI
+    productImages = [];
+    document.getElementById('additionalImagesContainer').innerHTML = '';
+    
+    // Load existing images
+    const existingImages = product.images || (product.image ? [product.image] : []);
+    
+    if (existingImages.length > 0) {
+        // Set main image
+        const mainImage = existingImages[0];
+        if (!mainImage.startsWith('data:')) {
+            document.getElementById('productImage').value = mainImage;
+        }
+        
+        // Add additional images
+        for (let i = 1; i < existingImages.length; i++) {
+            const url = existingImages[i];
+            if (!url.startsWith('data:')) {
+                addImageUrlInput();
+                const inputs = document.querySelectorAll('.additional-image-url');
+                if (inputs[i - 1]) {
+                    inputs[i - 1].value = url;
+                }
+            }
+        }
+        
+        // Copy to productImages array
+        productImages = existingImages.filter(img => !img.startsWith('data:'));
+        
+        // Update previews
+        updateImagePreviews();
+    }
     
     // Show URL method by default for editing
     document.querySelector('input[name="imageMethod"][value="url"]').checked = true;
     toggleImageInputMethod();
-    
-    const preview = document.getElementById('imagePreview');
-    if (product.image && !product.image.startsWith('data:')) {
-        preview.src = product.image;
-        preview.style.display = 'block';
-        // If it's an S3 URL, store it in the dataset
-        if (product.image.includes('s3.amazonaws.com')) {
-            preview.dataset.s3Url = product.image;
-        }
-    } else if (product.image) {
-        preview.src = product.image;
-        preview.style.display = 'block';
-    }
     
     document.getElementById('productModal').style.display = 'block';
 }
@@ -214,132 +257,15 @@ function closeModal() {
     document.getElementById('productModal').style.display = 'none';
     // Clear form
     document.getElementById('productForm').reset();
-    const preview = document.getElementById('imagePreview');
-    preview.style.display = 'none';
-    preview.src = '';
-    preview.dataset.s3Url = '';
+    
+    // Reset images
+    productImages = [];
+    document.getElementById('productImage').value = '';
+    document.getElementById('additionalImagesContainer').innerHTML = '';
+    document.getElementById('imagePreviews').style.display = 'none';
+    document.getElementById('imagePreviews').innerHTML = '';
 }
 
-// Image preview
-document.getElementById('productImage').addEventListener('input', function() {
-    const url = this.value;
-    const preview = document.getElementById('imagePreview');
-    
-    if (url) {
-        preview.src = url;
-        preview.style.display = 'block';
-        preview.onerror = function() {
-            this.style.display = 'none';
-        };
-    } else {
-        preview.style.display = 'none';
-    }
-});
-
-// Toggle between URL and file upload
-function toggleImageInputMethod() {
-    const method = document.querySelector('input[name="imageMethod"]:checked').value;
-    const urlInput = document.getElementById('productImage');
-    const fileInput = document.getElementById('productImageFile');
-    const preview = document.getElementById('imagePreview');
-    
-    if (method === 'url') {
-        urlInput.style.display = 'block';
-        fileInput.style.display = 'none';
-        fileInput.value = '';
-    } else {
-        urlInput.style.display = 'none';
-        fileInput.style.display = 'block';
-        urlInput.value = '';
-        preview.style.display = 'none';
-    }
-}
-
-// Add event listeners for radio buttons
-document.querySelectorAll('input[name="imageMethod"]').forEach(radio => {
-    radio.addEventListener('change', toggleImageInputMethod);
-});
-
-// Handle file upload and convert to base64
-document.getElementById('productImageFile').addEventListener('change', async function(e) {
-    const file = e.target.files[0];
-    const preview = document.getElementById('imagePreview');
-    
-    if (file) {
-        // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Image size should be less than 5MB');
-            this.value = '';
-            preview.style.display = 'none';
-            return;
-        }
-        
-        // Check file type
-        if (!file.type.startsWith('image/')) {
-            alert('Please select a valid image file');
-            this.value = '';
-            preview.style.display = 'none';
-            return;
-        }
-        
-        // Upload to S3
-        try {
-            const formData = new FormData();
-            formData.append('image', file);
-            
-            // Show uploading indicator
-            const uploadBtn = document.querySelector('#productForm button[type="submit"]');
-            const originalText = uploadBtn.textContent;
-            uploadBtn.disabled = true;
-            uploadBtn.textContent = 'Uploading to S3...';
-            
-            // Show temporary preview while uploading
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                preview.src = event.target.result;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-            
-            const response = await fetch('/api/upload-image', {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Upload failed: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Store the S3 URL for form submission
-                preview.dataset.s3Url = data.url;
-                // Update preview to show S3 image
-                preview.src = data.url;
-                console.log('✅ Image uploaded to S3:', data.url);
-                uploadBtn.textContent = '✓ Image Uploaded';
-                setTimeout(() => {
-                    uploadBtn.textContent = originalText;
-                    uploadBtn.disabled = false;
-                }, 1500);
-            } else {
-                throw new Error(data.error || 'Upload failed');
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            alert('Failed to upload image to S3: ' + error.message);
-            this.value = '';
-            preview.style.display = 'none';
-            const uploadBtn = document.querySelector('#productForm button[type="submit"]');
-            uploadBtn.disabled = false;
-            uploadBtn.textContent = 'Add Product';
-        }
-    } else {
-        preview.style.display = 'none';
-        preview.dataset.s3Url = '';
-    }
-});
 
 // Product form submit
 document.getElementById('productForm').addEventListener('submit', async function(e) {
@@ -353,35 +279,31 @@ document.getElementById('productForm').addEventListener('submit', async function
     const badge = document.getElementById('productBadge').value;
     const featured = document.getElementById('productFeatured').checked;
     
-    // Get image based on selected method
+    // Get images array
+    let images = [];
     const imageMethod = document.querySelector('input[name="imageMethod"]:checked').value;
-    let image = '';
     
     if (imageMethod === 'url') {
-        image = document.getElementById('productImage').value;
-        if (!image) {
-            alert('Please enter an image URL');
-            return;
+        updateImagePreviews(); // Make sure productImages is up to date
+        images = [...productImages];
+        
+        if (images.length === 0) {
+            const mainImage = document.getElementById('productImage').value.trim();
+            if (mainImage) {
+                images.push(mainImage);
+            }
         }
     } else {
-        // Get S3 URL from uploaded image
-        const preview = document.getElementById('imagePreview');
-        if (preview.dataset.s3Url) {
-            image = preview.dataset.s3Url;
-            console.log('Using S3 URL:', image);
-        } else if (preview.src && preview.style.display !== 'none' && !preview.src.startsWith('data:')) {
-            // Use existing image URL (for editing products)
-            image = preview.src;
-        } else {
-            alert('Please upload an image or wait for the upload to complete');
-            return;
+        // Use uploaded images from S3
+        if (productImages.length > 0) {
+            images = [...productImages];
         }
     }
     
-    // Generate placeholder if no image
-    if (!image) {
+    // Generate placeholder if no images
+    if (images.length === 0) {
         const encodedName = encodeURIComponent(name);
-        image = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect fill='%238B7355' width='400' height='400'/%3E%3Ctext fill='%23ffffff' font-family='Arial' font-size='24' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3E${encodedName}%3C/text%3E%3C/svg%3E`;
+        images.push(`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect fill='%238B7355' width='400' height='400'/%3E%3Ctext fill='%23ffffff' font-family='Arial' font-size='24' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3E${encodedName}%3C/text%3E%3C/svg%3E`);
     }
     
     const productData = {
@@ -389,7 +311,8 @@ document.getElementById('productForm').addEventListener('submit', async function
         category,
         price,
         description,
-        image,
+        image: images[0], // Main image (for backward compatibility)
+        images: images,   // All images array
         badge: badge || undefined,
         featured
     };
@@ -397,7 +320,8 @@ document.getElementById('productForm').addEventListener('submit', async function
     try {
         if (id) {
             // Update existing product
-            console.log('Updating product:', { id, name, image });
+            console.log('Updating product:', { id, name, images });
+            console.log('Full product data being sent:', productData);
             const response = await fetch(`/api/products/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -405,13 +329,14 @@ document.getElementById('productForm').addEventListener('submit', async function
             });
             
             const data = await response.json();
+            console.log('Server response:', data);
             
             if (!data.success) {
                 throw new Error(data.error || 'Failed to update product');
             }
         } else {
             // Add new product
-            console.log('Adding new product:', { name, image });
+            console.log('Adding new product:', { name, images });
             const response = await fetch('/api/products', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -464,6 +389,8 @@ function switchTab(tabName) {
     // Load data for the tab
     if (tabName === 'orders') {
         loadOrders();
+    } else if (tabName === 'categories') {
+        loadCategories();
     }
 }
 
@@ -493,14 +420,14 @@ async function loadOrders() {
             const formattedDate = orderDate.toLocaleDateString('en-PK') + ' ' + orderDate.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
             
             row.innerHTML = `
-                <td><strong>${order.orderNumber || order.orderId}</strong></td>
-                <td>${formattedDate}</td>
-                <td>${order.shipping.fullName}<br><small>${order.shipping.email}</small></td>
-                <td>${order.items.length} item(s)</td>
-                <td>Rs ${order.total.toLocaleString('en-PK')}</td>
-                <td><span class="order-status status-${order.status}">${capitalizeFirst(order.status)}</span></td>
-                <td class="tracking-info">${order.tracking || '-'}</td>
-                <td>
+                <td data-label="Order #"><strong>${order.orderNumber || order.orderId}</strong></td>
+                <td data-label="Date">${formattedDate}</td>
+                <td data-label="Customer">${order.shipping.fullName}<br><small>${order.shipping.email}</small></td>
+                <td data-label="Items">${order.items.length} item(s)</td>
+                <td data-label="Total">Rs ${order.total.toLocaleString('en-PK')}</td>
+                <td data-label="Status"><span class="order-status status-${order.status}">${capitalizeFirst(order.status)}</span></td>
+                <td data-label="Tracking" class="tracking-info">${order.tracking || '-'}</td>
+                <td data-label="Actions">
                     <button class="btn-view-order" onclick="viewOrderDetails('${order.orderId || order.orderNumber}')">
                         <i class="fas fa-eye"></i> View
                     </button>
@@ -545,14 +472,14 @@ async function filterOrders() {
             
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><strong>${order.orderNumber || order.orderId}</strong></td>
-                <td>${formattedDate}</td>
-                <td>${order.shipping.fullName}<br><small>${order.shipping.email}</small></td>
-                <td>${order.items.length} item(s)</td>
-                <td>Rs ${order.total.toLocaleString('en-PK')}</td>
-                <td><span class="order-status status-${order.status}">${capitalizeFirst(order.status)}</span></td>
-                <td class="tracking-info">${order.tracking || '-'}</td>
-                <td>
+                <td data-label="Order #"><strong>${order.orderNumber || order.orderId}</strong></td>
+                <td data-label="Date">${formattedDate}</td>
+                <td data-label="Customer">${order.shipping.fullName}<br><small>${order.shipping.email}</small></td>
+                <td data-label="Items">${order.items.length} item(s)</td>
+                <td data-label="Total">Rs ${order.total.toLocaleString('en-PK')}</td>
+                <td data-label="Status"><span class="order-status status-${order.status}">${capitalizeFirst(order.status)}</span></td>
+                <td data-label="Tracking" class="tracking-info">${order.tracking || '-'}</td>
+                <td data-label="Actions">
                     <button class="btn-view-order" onclick="viewOrderDetails('${order.orderId || order.orderNumber}')">
                         <i class="fas fa-eye"></i> View
                     </button>
@@ -623,7 +550,10 @@ async function viewOrderDetails(orderId) {
                 <ul class="order-items-list">
                     ${order.items.map(item => `
                         <li class="order-item">
-                            <span>${item.name} × ${item.quantity}</span>
+                            <div>
+                                <span>${item.name} × ${item.quantity}</span>
+                                ${item.customRequest ? `<div class="item-custom-request-admin"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
+                            </div>
                             <span>Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</span>
                         </li>
                     `).join('')}
@@ -732,3 +662,442 @@ async function updateOrder(event, orderId) {
 function closeOrderModal() {
     document.getElementById('orderModal').style.display = 'none';
 }
+
+// ============ MULTIPLE IMAGES SUPPORT ============
+
+// Global variable to store all product images
+let productImages = [];
+
+// Add another image URL input field
+function addImageUrlInput() {
+    const container = document.getElementById('additionalImagesContainer');
+    const inputGroup = document.createElement('div');
+    inputGroup.className = 'additional-image-input';
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Enter additional image URL';
+    input.className = 'additional-image-url';
+    input.addEventListener('change', updateImagePreviews);
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-remove-image';
+    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    removeBtn.onclick = function() {
+        inputGroup.remove();
+        updateImagePreviews();
+    };
+    
+    inputGroup.appendChild(input);
+    inputGroup.appendChild(removeBtn);
+    container.appendChild(inputGroup);
+}
+
+// Update image previews
+function updateImagePreviews() {
+    const method = document.querySelector('input[name="imageMethod"]:checked').value;
+    const previewsContainer = document.getElementById('imagePreviews');
+    
+    // Only reset productImages if in URL mode
+    // In file upload mode, keep the uploaded S3 URLs
+    if (method === 'url') {
+        productImages = [];
+        
+        // Get main image
+        const mainImage = document.getElementById('productImage').value.trim();
+        if (mainImage) {
+            productImages.push(mainImage);
+        }
+        
+        // Get additional images
+        document.querySelectorAll('.additional-image-url').forEach(input => {
+            const url = input.value.trim();
+            if (url) {
+                productImages.push(url);
+            }
+        });
+    }
+    // If method is 'file', productImages already contains uploaded S3 URLs, don't reset
+    
+    // Display previews
+    if (productImages.length > 0) {
+        previewsContainer.innerHTML = '';
+        previewsContainer.style.display = 'grid';
+        
+        productImages.forEach((url, index) => {
+            const previewItem = document.createElement('div');
+            previewItem.className = 'image-preview-item';
+            
+            const img = document.createElement('img');
+            img.src = url;
+            img.onerror = function() {
+                this.src = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27%3E%3Crect fill=%27%23ddd%27 width=%27200%27 height=%27200%27/%3E%3Ctext fill=%27%23999%27 font-family=%27Arial%27 font-size=%2714%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EInvalid URL%3C/text%3E%3C/svg%3E';
+            };
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-preview';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = function() {
+                if (method === 'url') {
+                    if (index === 0) {
+                        document.getElementById('productImage').value = '';
+                    } else {
+                        const inputs = document.querySelectorAll('.additional-image-url');
+                        if (inputs[index - 1]) {
+                            inputs[index - 1].closest('.additional-image-input').remove();
+                        }
+                    }
+                    updateImagePreviews();
+                } else {
+                    // For file uploads, remove from productImages array
+                    productImages.splice(index, 1);
+                    updateImagePreviews();
+                }
+            };
+            
+            if (index === 0) {
+                const mainBadge = document.createElement('span');
+                mainBadge.className = 'main-badge';
+                mainBadge.textContent = 'Main';
+                previewItem.appendChild(mainBadge);
+            }
+            
+            previewItem.appendChild(img);
+            previewItem.appendChild(removeBtn);
+            previewsContainer.appendChild(previewItem);
+        });
+    } else {
+        previewsContainer.style.display = 'none';
+    }
+}
+
+// Update toggleImageInputMethod to support multiple images
+function toggleImageInputMethod() {
+    const method = document.querySelector('input[name="imageMethod"]:checked').value;
+    const urlSection = document.getElementById('urlInputSection');
+    const fileSection = document.getElementById('fileInputSection');
+    
+    if (method === 'url') {
+        urlSection.style.display = 'block';
+        fileSection.style.display = 'none';
+    } else {
+        urlSection.style.display = 'none';
+        fileSection.style.display = 'block';
+    }
+}
+
+// Handle multiple file uploads
+document.getElementById('productImageFile').addEventListener('change', async function(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    const previewsContainer = document.getElementById('imagePreviews');
+    
+    // Don't reset productImages - keep existing ones and append new uploads
+    // Only initialize if empty
+    if (productImages.length === 0) {
+        previewsContainer.innerHTML = '';
+        previewsContainer.style.display = 'grid';
+    }
+    
+    // Store the starting index for new images
+    const startIndex = productImages.length;
+    
+    // Show uploading indicator
+    const uploadBtn = document.querySelector('#productForm button[type="submit"]');
+    const originalText = uploadBtn.textContent;
+    uploadBtn.disabled = true;
+    
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        if (!file.type.startsWith('image/')) {
+            alert(`File ${file.name} is not an image`);
+            continue;
+        }
+        
+        try {
+            uploadBtn.textContent = `Uploading ${i + 1}/${files.length}...`;
+            
+            // Show temporary preview
+            const reader = new FileReader();
+            const previewPromise = new Promise(resolve => {
+                reader.onload = function(event) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'image-preview-item';
+                    
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    
+                    // Only mark as main if it's the very first image
+                    if (startIndex === 0 && i === 0) {
+                        const mainBadge = document.createElement('span');
+                        mainBadge.className = 'main-badge';
+                        mainBadge.textContent = 'Main';
+                        previewItem.appendChild(mainBadge);
+                    }
+                    
+                    previewItem.appendChild(img);
+                    previewsContainer.appendChild(previewItem);
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            await previewPromise;
+            
+            // Upload to S3
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            const response = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Upload failed for ${file.name}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                productImages.push(data.url);
+                console.log(`✅ Image ${startIndex + i + 1} uploaded:`, data.url);
+                
+                // Update the preview with actual S3 URL
+                const previewItems = previewsContainer.querySelectorAll('.image-preview-item');
+                const targetIndex = startIndex + i;
+                if (previewItems[targetIndex]) {
+                    previewItems[targetIndex].querySelector('img').src = data.url;
+                }
+            } else {
+                throw new Error(data.error || 'Upload failed');
+            }
+        } catch (error) {
+            console.error(`Upload error for ${file.name}:`, error);
+            alert(`Failed to upload ${file.name}: ${error.message}`);
+        }
+    }
+    
+    uploadBtn.textContent = '✓ Images Uploaded';
+    setTimeout(() => {
+        uploadBtn.textContent = originalText;
+        uploadBtn.disabled = false;
+    }, 1500);
+    
+    // Clear the file input so same files can be selected again if needed
+    this.value = '';
+    
+    // Update previews with remove buttons
+    updateImagePreviews();
+});
+
+// Add event listeners
+document.getElementById('productImage').addEventListener('change', updateImagePreviews);
+document.querySelectorAll('input[name="imageMethod"]').forEach(radio => {
+    radio.addEventListener('change', toggleImageInputMethod);
+});
+
+// ============ CATEGORIES MANAGEMENT ============
+
+// Load categories
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const tbody = document.getElementById('categoriesTableBody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        if (categories.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px;">No categories yet. Add your first category!</td></tr>';
+            return;
+        }
+        
+        // Count products per category
+        const categoryCount = {};
+        products.forEach(product => {
+            categoryCount[product.category] = (categoryCount[product.category] || 0) + 1;
+        });
+        
+        categories.forEach(category => {
+            const row = document.createElement('tr');
+            const count = categoryCount[category.name] || 0;
+            
+            row.innerHTML = `
+                <td data-label="Category">${capitalizeFirst(category.name)}</td>
+                <td data-label="Product Count">${count} product${count !== 1 ? 's' : ''}</td>
+                <td data-label="Actions">
+                    <div class="action-buttons">
+                        <button class="btn-edit" onclick="editCategory('${category.id}', '${category.name}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-delete" onclick="deleteCategory('${category.id}', '${category.name}', ${count})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading categories:', error);
+        const tbody = document.getElementById('categoriesTableBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 40px; color: red;">Failed to load categories</td></tr>';
+        }
+    }
+}
+
+// Load categories into product form dropdown
+async function loadCategoryDropdown() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const select = document.getElementById('productCategory');
+        if (!select) return;
+        
+        // Clear existing options except the first one
+        select.innerHTML = '<option value="">Select Category</option>';
+        
+        // Add categories from database
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.name;
+            option.textContent = capitalizeFirst(category.name);
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading category dropdown:', error);
+    }
+}
+
+// Open add category modal
+function openAddCategoryModal() {
+    document.getElementById('categoryModalTitle').textContent = 'Add New Category';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryId').value = '';
+    document.getElementById('categoryModal').style.display = 'block';
+}
+
+// Edit category
+function editCategory(id, name) {
+    document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+    document.getElementById('categoryId').value = id;
+    document.getElementById('categoryName').value = name;
+    document.getElementById('categoryModal').style.display = 'block';
+}
+
+// Delete category
+async function deleteCategory(id, name, productCount) {
+    if (productCount > 0) {
+        if (!confirm(`This category "${name}" has ${productCount} product(s). Deleting it will NOT delete the products, but they will need to be assigned to a new category. Continue?`)) {
+            return;
+        }
+    } else {
+        if (!confirm(`Are you sure you want to delete the category "${name}"?`)) {
+            return;
+        }
+    }
+    
+    try {
+        const response = await fetch(`/api/categories/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await loadCategories();
+            alert('Category deleted successfully!');
+        } else {
+            throw new Error(data.error || 'Failed to delete');
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        alert('Failed to delete category: ' + error.message);
+    }
+}
+
+// Close category modal
+function closeCategoryModal() {
+    document.getElementById('categoryModal').style.display = 'none';
+    document.getElementById('categoryForm').reset();
+}
+
+// Category form submit
+document.getElementById('categoryForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById('categoryId').value;
+    const name = document.getElementById('categoryName').value.trim().toLowerCase();
+    
+    if (!name) {
+        alert('Please enter a category name');
+        return;
+    }
+    
+    const categoryData = { name };
+    
+    try {
+        if (id) {
+            // Update existing category
+            const response = await fetch(`/api/categories/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoryData)
+            });
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to update category');
+            }
+        } else {
+            // Add new category
+            const response = await fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoryData)
+            });
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to create category');
+            }
+        }
+        
+        await loadCategories();
+        await loadProducts(); // Reload products to update category dropdown
+        await loadCategoryDropdown(); // Reload dropdown in product form
+        closeCategoryModal();
+        alert('Category saved successfully!');
+    } catch (error) {
+        console.error('Error saving category:', error);
+        alert('Failed to save category: ' + error.message);
+    }
+});
+
+// Update window.onclick to include category modal
+const originalWindowClick = window.onclick;
+window.onclick = function(event) {
+    const modal = document.getElementById('productModal');
+    const orderModal = document.getElementById('orderModal');
+    const categoryModal = document.getElementById('categoryModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+    if (event.target === orderModal) {
+        closeOrderModal();
+    }
+    if (event.target === categoryModal) {
+        closeCategoryModal();
+    }
+};

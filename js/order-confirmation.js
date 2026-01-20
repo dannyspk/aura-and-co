@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!orderNumber || !orderData.orderNumber) {
         // No order found, redirect to shop
-        window.location.href = 'shop.html';
+        window.location.href = '/shop';
         return;
     }
     
@@ -32,6 +32,7 @@ function displayOrderConfirmation(order) {
             <div class="item-details">
                 <div class="item-name">${item.name}</div>
                 <div class="item-quantity">Quantity: ${item.quantity}</div>
+                ${item.customRequest ? `<div class="item-custom-note"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
             </div>
             <div class="item-price">Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</div>
         </div>

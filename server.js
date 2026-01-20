@@ -34,11 +34,27 @@ const upload = multer({
 });
 
 // Configure AWS S3
-const s3Client = new S3Client({
+const s3Config = {
     region: process.env.AWS_REGION || 'us-east-1'
-});
+};
 
-const BUCKET_NAME = 'aurascoimages';
+// Add credentials if provided
+if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    s3Config.credentials = {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    };
+}
+
+const s3Client = new S3Client(s3Config);
+
+const BUCKET_NAME = process.env.AWS_S3_BUCKET || 'aurascoimages';
+
+// Verify S3 configuration on startup
+if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    console.warn('⚠️  Warning: AWS credentials not configured. S3 image uploads will fail.');
+    console.warn('   Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your .env file');
+}
 
 // Initialize Supabase tables and seed data
 async function initializeDatabase() {
@@ -322,6 +338,11 @@ app.put('/api/products/:id', async (req, res) => {
             updated_at: new Date().toISOString()
         };
 
+        // Debug logging
+        console.log('Updating product:', id);
+        console.log('Update data:', JSON.stringify(updateData, null, 2));
+        console.log('Images array:', updateData.images);
+
         const { data: product, error } = await supabase
             .from('products')
             .update(updateData)
@@ -335,6 +356,10 @@ app.put('/api/products/:id', async (req, res) => {
             }
             throw error;
         }
+        
+        console.log('Product updated successfully:', product.id);
+        console.log('Saved images:', product.images);
+        
         res.json({ success: true, product });
     } catch (error) {
         console.error('Error updating product:', error);
@@ -436,14 +461,136 @@ app.put('/api/orders/:orderId', async (req, res) => {
     }
 });
 
+// ============ CATEGORIES API ============
+
+// Get all categories
+app.get('/api/categories', async (req, res) => {
+    try {
+        const { data: categories, error } = await supabase
+            .from('categories')
+            .select('*')
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        res.json(categories || []);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+});
+
+// Create category
+app.post('/api/categories', async (req, res) => {
+    try {
+        const { name } = req.body;
+        
+        // Check if category already exists
+        const { data: existing } = await supabase
+            .from('categories')
+            .select('*')
+            .eq('name', name.toLowerCase())
+            .single();
+            
+        if (existing) {
+            return res.status(400).json({ error: 'Category already exists' });
+        }
+        
+        const { data: category, error } = await supabase
+            .from('categories')
+            .insert([{ name: name.toLowerCase() }])
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json({ success: true, category });
+    } catch (error) {
+        console.error('Error creating category:', error);
+        res.status(500).json({ error: 'Failed to create category' });
+    }
+});
+
+// Update category
+app.put('/api/categories/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { name } = req.body;
+        
+        // Check if new name already exists
+        const { data: existing } = await supabase
+            .from('categories')
+            .select('*')
+            .eq('name', name.toLowerCase())
+            .neq('id', id)
+            .single();
+            
+        if (existing) {
+            return res.status(400).json({ error: 'Category name already exists' });
+        }
+
+        const { data: category, error } = await supabase
+            .from('categories')
+            .update({ name: name.toLowerCase(), updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') {
+                return res.status(404).json({ error: 'Category not found' });
+            }
+            throw error;
+        }
+        res.json({ success: true, category });
+    } catch (error) {
+        console.error('Error updating category:', error);
+        res.status(500).json({ error: 'Failed to update category' });
+    }
+});
+
+// Delete category
+app.delete('/api/categories/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        
+        const { data: category, error } = await supabase
+            .from('categories')
+            .delete()
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') {
+                return res.status(404).json({ error: 'Category not found' });
+            }
+            throw error;
+        }
+        res.json({ success: true, category });
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        res.status(500).json({ error: 'Failed to delete category' });
+    }
+});
+
 // ============ IMAGE UPLOAD ============
 
 // Image upload endpoint
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     try {
+        // Check if AWS credentials are configured
+        if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+            console.error('❌ AWS credentials not configured');
+            return res.status(500).json({ 
+                error: 'Server configuration error: AWS credentials not set',
+                details: 'Contact administrator to configure AWS S3 credentials'
+            });
+        }
+
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
+
+        console.log(`📤 Uploading image: ${req.file.originalname} (${(req.file.size / 1024).toFixed(2)} KB)`);
 
         // Generate unique filename
         const fileExtension = path.extname(req.file.originalname);
@@ -461,17 +608,26 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
         await s3Client.send(command);
 
         // Return the public URL
-        const imageUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${fileName}`;
+        const imageUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${fileName}`;
+        
+        console.log(`✅ Image uploaded successfully: ${imageUrl}`);
         
         res.json({ 
             success: true, 
             url: imageUrl 
         });
     } catch (error) {
-        console.error('Upload error:', error);
+        console.error('❌ Upload error:', error);
+        console.error('Error details:', {
+            message: error.message,
+            code: error.Code || error.code,
+            name: error.name
+        });
+        
         res.status(500).json({ 
             error: 'Failed to upload image',
-            details: error.message 
+            details: error.message,
+            code: error.Code || error.code || 'UNKNOWN'
         });
     }
 });

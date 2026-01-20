@@ -1,9 +1,12 @@
 {
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/home", "destination": "/index.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/shop", "destination": "/shop.html" },
     { "source": "/checkout", "destination": "/checkout.html" },
     { "source": "/order-confirmation", "destination": "/order-confirmation.html" }
-  ]
+  ],
+  "trailingSlash": false
 }
