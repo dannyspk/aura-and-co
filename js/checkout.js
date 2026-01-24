@@ -286,17 +286,18 @@ async function placeOrder() {
         
         // Prepare order data
         const order = {
-            orderNumber: orderNumber,
-            date: new Date().toISOString(),
-            shipping: orderData.shipping,
-            payment: orderData.payment,
+            order_number: orderNumber,
+            customer_name: `${orderData.shipping.firstName} ${orderData.shipping.lastName}`,
+            customer_email: orderData.shipping.email,
+            customer_phone: orderData.shipping.phone,
+            shipping_address: orderData.shipping,
             items: orderData.items,
             subtotal: cart.getTotal(),
+            shipping: calculateShipping(orderData.shipping.city),
             tax: 0,
-            shippingCost: calculateShipping(orderData.shipping.city),
             total: cart.getTotal() + calculateShipping(orderData.shipping.city),
-            status: 'pending',
-            tracking: ''
+            payment_method: orderData.payment.method,
+            status: 'pending'
         };
         
         // Save order to API
@@ -309,8 +310,8 @@ async function placeOrder() {
             
             const data = await response.json();
             
-            if (data.success) {
-                console.log('✅ Order saved to database:', data.order.orderId);
+            if (response.ok && data.success) {
+                console.log('✅ Order saved to database:', data.order);
                 
                 // Save to last order (for confirmation page)
                 localStorage.setItem('lastOrder', JSON.stringify(data.order));

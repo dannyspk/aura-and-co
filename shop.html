@@ -183,6 +183,86 @@
             cursor: pointer;
         }
 
+        /* Main Navigation Bar */
+        .nav {
+            background: #f7f2ea;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .nav > a,
+        .nav > .dropdown > a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 15px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            display: block;
+        }
+
+        .nav > a:hover,
+        .nav > a.active,
+        .nav > .dropdown > a:hover {
+            color: #c9a66b;
+            background: rgba(201, 166, 107, 0.1);
+        }
+
+        .nav .dropdown {
+            position: relative;
+        }
+
+        .nav .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            border-radius: 5px;
+            padding: 10px 0;
+            min-width: 200px;
+            margin-top: 0;
+            z-index: 1000;
+        }
+
+        .nav .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .nav .dropdown-content a {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .nav .dropdown-content a:hover {
+            background: #f7f2ea;
+            color: #c9a66b;
+        }
+
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block;
+        }
+
         /* Footer Styles */
         .footer {
             background: #f7f2ea;
@@ -278,7 +358,7 @@
                 display: block;
             }
 
-            .nav-menu {
+            .nav {
                 position: fixed;
                 top: 0;
                 left: -100%;
@@ -288,35 +368,38 @@
                 flex-direction: column;
                 padding: 5em 2em 2em 2em;
                 box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                z-index: 1000;
+                z-index: 999;
                 transition: left 0.3s ease;
                 gap: 0;
                 overflow-y: auto;
+                align-items: flex-start;
             }
 
-            .nav-menu.active {
+            .nav.active {
                 left: 0;
             }
             
-            .nav-menu a {
+            .nav > a,
+            .nav > .dropdown > a {
                 padding: 1em 0;
                 width: 100%;
                 border-bottom: 1px solid #f7f2ea;
                 font-size: 1.1rem;
             }
             
-            .nav-menu .dropdown > a {
+            .nav .dropdown > a {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
             
-            .nav-menu .dropdown > a::after {
+            .nav .dropdown > a::after {
                 content: '▾';
                 transition: transform 0.3s;
+                display: inline-block;
             }
             
-            .nav-menu .dropdown.active > a::after {
+            .nav .dropdown.active > a::after {
                 transform: rotate(180deg);
             }
 
@@ -324,7 +407,7 @@
                 gap: 15px;
             }
 
-            .dropdown-menu {
+            .nav .dropdown-content {
                 position: static;
                 box-shadow: none;
                 padding-left: 1.5em;
@@ -333,11 +416,11 @@
                 display: none;
             }
             
-            .dropdown.active .dropdown-menu {
+            .nav .dropdown.active .dropdown-content {
                 display: block;
             }
             
-            .dropdown-menu a {
+            .nav .dropdown-content a {
                 padding: 0.8em 0.5em;
                 font-size: 0.95rem;
                 border-bottom: 1px solid #fff;
@@ -361,21 +444,6 @@
                         <span>Aura & Co</span>
                     </a>
                     
-                    <ul class="nav-menu">
-                        <li><a href="/">Home</a></li>
-                        <li class="dropdown">
-                            <a href="/shop" class="active">Collections <i class="fas fa-chevron-down"></i></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="shop.html?category=rings">Rings</a></li>
-                                <li><a href="shop.html?category=necklaces">Necklaces</a></li>
-                                <li><a href="shop.html?category=earrings">Earrings</a></li>
-                                <li><a href="shop.html?category=bracelets">Bracelets</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                    </ul>
-                    
                     <div class="nav-actions">
                         <button class="nav-icon"><i class="fas fa-search"></i></button>
                         <button class="nav-icon"><i class="fas fa-user"></i></button>
@@ -383,17 +451,39 @@
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count">0</span>
                         </button>
+                        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
                     </div>
-                    
-                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
                 </div>
             </div>
         </nav>
     </header>
+    
+    <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/shop" class="active">Catalog</a>
+        <div class="dropdown">
+            <a href="#">Collections ▾</a>
+            <div class="dropdown-content">
+                <a href="shop.html?category=rings">Rings</a>
+                <a href="shop.html?category=necklaces">Necklaces</a>
+                <a href="shop.html?category=earrings">Earrings</a>
+                <a href="shop.html?category=bracelets">Bracelets</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Discover ▾</a>
+            <div class="dropdown-content">
+                <a href="about.html">Our Story</a>
+                <a href="faq.html">FAQ</a>
+                <a href="shipping.html">Shipping</a>
+            </div>
+        </div>
+        <a href="contact.html">Contact</a>
+    </nav>
     
     <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 

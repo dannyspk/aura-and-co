@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-    const nav = document.querySelector('.nav, .main-nav');
+    const nav = document.querySelector('.nav, .main-nav, .nav-menu');
     
     if (mobileMenuToggle && nav) {
         // Toggle menu

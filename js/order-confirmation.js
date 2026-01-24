@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Retrieve order from localStorage
     const orderData = JSON.parse(localStorage.getItem('lastOrder') || '{}');
     
-    if (!orderNumber || !orderData.orderNumber) {
+    if (!orderNumber || (!orderData.order_number && !orderData.orderNumber)) {
         // No order found, redirect to shop
         window.location.href = '/shop';
         return;
@@ -18,11 +18,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function displayOrderConfirmation(order) {
+    // Support both camelCase and snake_case formats
+    const orderNumber = order.order_number || order.orderNumber;
+    const shippingAddress = order.shipping_address || order.shipping;
+    const shippingCost = order.shipping || 0;
+    const subtotal = order.subtotal || 0;
+    const tax = order.tax || 0;
+    const total = order.total || 0;
+    
     // Order number
-    document.getElementById('orderNumber').textContent = order.orderNumber;
+    document.getElementById('orderNumber').textContent = orderNumber;
     
     // Customer email
-    document.getElementById('customerEmail').textContent = order.shipping.email;
+    document.getElementById('customerEmail').textContent = shippingAddress.email;
     
     // Order items
     const orderItemsContainer = document.getElementById('orderItems');
@@ -39,19 +47,19 @@ function displayOrderConfirmation(order) {
     `).join('');
     
     // Order totals
-    document.getElementById('orderSubtotal').textContent = `Rs ${order.subtotal.toLocaleString('en-PK')}`;
-    document.getElementById('orderShipping').textContent = order.shipping === 0 ? 'FREE' : `Rs ${order.shipping.toLocaleString('en-PK')}`;
-    document.getElementById('orderTax').textContent = `Rs ${order.tax.toLocaleString('en-PK')}`;
-    document.getElementById('orderTotal').textContent = `Rs ${order.total.toLocaleString('en-PK')}`;
+    document.getElementById('orderSubtotal').textContent = `Rs ${subtotal.toLocaleString('en-PK')}`;
+    document.getElementById('orderShipping').textContent = shippingCost === 0 ? 'FREE' : `Rs ${shippingCost.toLocaleString('en-PK')}`;
+    document.getElementById('orderTax').textContent = `Rs ${tax.toLocaleString('en-PK')}`;
+    document.getElementById('orderTotal').textContent = `Rs ${total.toLocaleString('en-PK')}`;
     
     // Shipping address
     const shippingDiv = document.getElementById('shippingAddress');
     shippingDiv.innerHTML = `
-        <p><strong>${order.shipping.firstName} ${order.shipping.lastName}</strong></p>
-        <p>${order.shipping.address}</p>
-        <p>${order.shipping.city}, ${order.shipping.state} ${order.shipping.zipCode}</p>
-        <p>${order.shipping.country}</p>
-        <p>Email: ${order.shipping.email}</p>
-        <p>Phone: ${order.shipping.phone}</p>
+        <p><strong>${shippingAddress.firstName} ${shippingAddress.lastName}</strong></p>
+        <p>${shippingAddress.address}</p>
+        <p>${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zipCode}</p>
+        <p>${shippingAddress.country}</p>
+        <p>Email: ${shippingAddress.email}</p>
+        <p>Phone: ${shippingAddress.phone}</p>
     `;
 }

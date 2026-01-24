@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -413,9 +413,20 @@ app.get('/api/orders', async (req, res) => {
 // Create order
 app.post('/api/orders', async (req, res) => {
     try {
+        // The order data now comes in the correct database format
         const newOrder = {
-            order_number: 'ORD-' + Date.now(),
-            ...req.body
+            order_number: req.body.order_number,
+            customer_name: req.body.customer_name,
+            customer_email: req.body.customer_email,
+            customer_phone: req.body.customer_phone,
+            shipping_address: req.body.shipping_address,
+            items: req.body.items,
+            subtotal: req.body.subtotal,
+            shipping: req.body.shipping,
+            tax: req.body.tax,
+            total: req.body.total,
+            payment_method: req.body.payment_method,
+            status: req.body.status || 'pending'
         };
         
         const { data: order, error } = await supabase

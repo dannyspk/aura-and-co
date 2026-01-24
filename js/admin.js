@@ -397,12 +397,23 @@ function switchTab(tabName) {
 // Load orders into table
 async function loadOrders() {
     try {
+        console.log('🔄 Loading orders from /api/orders...');
         const response = await fetch('/api/orders');
+        console.log('📡 Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const orders = await response.json();
+        console.log('📦 Loaded orders:', orders.length);
         
         const tbody = document.getElementById('ordersTableBody');
         
-        if (!tbody) return;
+        if (!tbody) {
+            console.error('❌ ordersTableBody element not found');
+            return;
+        }
         
         tbody.innerHTML = '';
         
@@ -412,23 +423,29 @@ async function loadOrders() {
         }
         
         // Sort orders by date (newest first)
-        orders.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+        orders.sort((a, b) => new Date(b.date || b.created_at || b.createdAt) - new Date(a.date || a.created_at || a.createdAt));
         
         orders.forEach((order, index) => {
             const row = document.createElement('tr');
-            const orderDate = new Date(order.date || order.createdAt);
+            const orderDate = new Date(order.date || order.created_at || order.createdAt);
             const formattedDate = orderDate.toLocaleDateString('en-PK') + ' ' + orderDate.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
             
+            // Handle both old format (order.shipping) and new format (order.shipping_address)
+            const shippingInfo = order.shipping_address || order.shipping || {};
+            const customerName = order.customer_name || `${shippingInfo.firstName || ''} ${shippingInfo.lastName || ''}`.trim() || shippingInfo.fullName || 'N/A';
+            const customerEmail = order.customer_email || shippingInfo.email || 'N/A';
+            const orderNum = order.order_number || order.orderNumber || order.orderId || order.id;
+            
             row.innerHTML = `
-                <td data-label="Order #"><strong>${order.orderNumber || order.orderId}</strong></td>
+                <td data-label="Order #"><strong>${orderNum}</strong></td>
                 <td data-label="Date">${formattedDate}</td>
-                <td data-label="Customer">${order.shipping.fullName}<br><small>${order.shipping.email}</small></td>
+                <td data-label="Customer">${customerName}<br><small>${customerEmail}</small></td>
                 <td data-label="Items">${order.items.length} item(s)</td>
                 <td data-label="Total">Rs ${order.total.toLocaleString('en-PK')}</td>
                 <td data-label="Status"><span class="order-status status-${order.status}">${capitalizeFirst(order.status)}</span></td>
                 <td data-label="Tracking" class="tracking-info">${order.tracking || '-'}</td>
                 <td data-label="Actions">
-                    <button class="btn-view-order" onclick="viewOrderDetails('${order.orderId || order.orderNumber}')">
+                    <button class="btn-view-order" onclick="viewOrderDetails('${orderNum}')">
                         <i class="fas fa-eye"></i> View
                     </button>
                 </td>
@@ -497,15 +514,22 @@ async function viewOrderDetails(orderId) {
     try {
         const response = await fetch('/api/orders');
         const orders = await response.json();
-        const order = orders.find(o => (o.orderId || o.orderNumber) === orderId);
+        const order = orders.find(o => (o.orderId || o.orderNumber || o.order_number || o.id) === orderId);
         
         if (!order) {
             alert('Order not found');
             return;
         }
         
-        const orderDate = new Date(order.date || order.createdAt);
+        const orderDate = new Date(order.date || order.created_at || order.createdAt);
         const formattedDate = orderDate.toLocaleDateString('en-PK', { dateStyle: 'long' }) + ' at ' + orderDate.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+        
+        // Handle both old format and new database format
+        const shippingInfo = order.shipping_address || order.shipping || {};
+        const customerName = order.customer_name || `${shippingInfo.firstName || ''} ${shippingInfo.lastName || ''}`.trim() || shippingInfo.fullName || 'N/A';
+        const paymentMethod = order.payment_method || order.payment?.method || 'cod';
+        const shippingCost = order.shipping || 0;
+        const orderNum = order.order_number || order.orderNumber || order.orderId || order.id;
         
         const content = document.getElementById('orderDetailsContent');
         content.innerHTML = `
@@ -513,7 +537,7 @@ async function viewOrderDetails(orderId) {
                 <h3>Order Information</h3>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Order Number:</span>
-                    <span><strong>${order.orderNumber || order.orderId}</strong></span>
+                    <span><strong>${orderNum}</strong></span>
                 </div>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Date:</span>
@@ -529,19 +553,19 @@ async function viewOrderDetails(orderId) {
                 <h3>Customer Information</h3>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Name:</span>
-                    <span>${order.shipping.fullName}</span>
+                    <span>${customerName}</span>
                 </div>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Email:</span>
-                    <span>${order.shipping.email}</span>
+                    <span>${shippingInfo.email || 'N/A'}</span>
                 </div>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Phone:</span>
-                    <span>${order.shipping.phone}</span>
+                    <span>${shippingInfo.phone || 'N/A'}</span>
                 </div>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Address:</span>
-                    <span>${order.shipping.address}, ${order.shipping.city}, ${order.shipping.postalCode}</span>
+                    <span>${shippingInfo.address || 'N/A'}, ${shippingInfo.city || ''}, ${shippingInfo.zipCode || shippingInfo.postalCode || ''}</span>
                 </div>
             </div>
 
@@ -564,7 +588,7 @@ async function viewOrderDetails(orderId) {
                 </div>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Shipping:</span>
-                    <span>Rs ${order.shippingCost.toLocaleString('en-PK')}</span>
+                    <span>Rs ${shippingCost.toLocaleString('en-PK')}</span>
                 </div>
                 <div class="order-detail-row" style="font-size: 1.1rem; font-weight: 600;">
                     <span class="order-detail-label">Total:</span>
@@ -576,12 +600,12 @@ async function viewOrderDetails(orderId) {
                 <h3>Payment Method</h3>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Method:</span>
-                    <span>${order.payment.method === 'cod' ? 'Cash on Delivery' : 
-                           order.payment.method === 'easypaisa' ? 'Easypaisa' : 
-                           order.payment.method === 'jazzcash' ? 'JazzCash' : 
-                           order.payment.method}</span>
+                    <span>${paymentMethod === 'cod' ? 'Cash on Delivery' : 
+                           paymentMethod === 'easypaisa' ? 'Easypaisa' : 
+                           paymentMethod === 'jazzcash' ? 'JazzCash' : 
+                           paymentMethod}</span>
                 </div>
-                ${order.payment.mobileNumber ? `
+                ${order.payment && order.payment.mobileNumber ? `
                     <div class="order-detail-row">
                         <span class="order-detail-label">Mobile Number:</span>
                         <span>${order.payment.mobileNumber}</span>
@@ -591,7 +615,7 @@ async function viewOrderDetails(orderId) {
 
             <div class="order-update-form">
                 <h3>Update Order</h3>
-                <form onsubmit="updateOrder(event, '${order.orderId || order.orderNumber}')">
+                <form onsubmit="updateOrder(event, '${orderNum}')">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="orderStatus">Order Status</label>

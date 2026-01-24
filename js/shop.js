@@ -1,7 +1,28 @@
 // Shop Page Functionality
+console.log('🏪 Shop.js loaded');
+console.log('📦 Products available:', typeof products !== 'undefined' ? products.length : 'products not defined yet');
+
 document.addEventListener('DOMContentLoaded', function() {
-    let currentFilter = 'all';
+    console.log('🎯 Shop page DOM loaded');
+    console.log('📦 Products in DOM ready:', typeof products !== 'undefined' ? products.length : 'products not defined yet');
+    
+    // Check for category parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    console.log('🔗 URL category parameter:', categoryParam);
+    
+    let currentFilter = categoryParam || 'all';
     let currentSort = 'featured';
+    
+    // Set active filter button based on URL param
+    if (categoryParam) {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.category === categoryParam) {
+                btn.classList.add('active');
+            }
+        });
+    }
     
     // Render products
     function renderProducts() {
@@ -12,7 +33,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply filter
         if (currentFilter !== 'all') {
-            filteredProducts = products.filter(p => p.category === currentFilter);
+            console.log('🔍 Filtering by category:', currentFilter);
+            filteredProducts = products.filter(p => {
+                const productCategory = (p.category || '').toLowerCase().trim();
+                const filterCategory = currentFilter.toLowerCase().trim();
+                return productCategory === filterCategory;
+            });
+            console.log(`📦 Found ${filteredProducts.length} products in category "${currentFilter}"`);
+        } else {
+            console.log('📦 Showing all products:', products.length);
         }
         
         // Apply sort
@@ -57,9 +86,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 10);
     }
     
-    // Filter functionality
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+    // Filter functionality with event delegation
+    const filtersContainer = document.querySelector('.filters');
+    console.log('📂 Filters container found:', !!filtersContainer);
+    
+    if (filtersContainer) {
+        filtersContainer.addEventListener('click', function(e) {
+            const btn = e.target.closest('.filter-btn');
+            if (btn) {
+                console.log('🔘 Filter button clicked:', btn.dataset.category);
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.category;
+                renderProducts();
+            }
+        });
+    }
+    
+    // Backup: Direct event listeners
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    console.log('🔘 Found filter buttons:', filterButtons.length);
+    
+    filterButtons.forEach(btn => {
+        console.log('🔘 Attaching listener to button:', btn.dataset.category);
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔘 Filter button clicked (direct):', this.dataset.category);
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             currentFilter = this.dataset.category;
@@ -78,12 +131,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Wait for products to load from API before initial render
     window.addEventListener('productsLoaded', function() {
+        console.log('✅ Products loaded event received, rendering products...');
         renderProducts();
     });
     
     // If products are already loaded, render immediately
-    if (products.length > 0 && products[0].updatedAt) {
+    if (products.length > 0) {
+        console.log('✅ Products already loaded, rendering immediately...');
         renderProducts();
+    } else {
+        console.log('⏳ Waiting for products to load...');
     }
 });
 
