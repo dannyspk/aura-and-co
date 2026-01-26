@@ -215,6 +215,81 @@
                 padding-left: 20px;
             }
         }
+
+        /* Promo Code Styles */
+        .promo-code-section {
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .promo-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .promo-input-group input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            transition: border-color 0.3s ease;
+        }
+
+        .promo-input-group input:focus {
+            outline: none;
+            border-color: #c9a66b;
+        }
+
+        .apply-promo-btn {
+            padding: 12px 24px;
+            background: #c9a66b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .apply-promo-btn:hover {
+            background: #b8956a;
+        }
+
+        .apply-promo-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .promo-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .promo-message.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .promo-message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .promo-message i {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -478,6 +553,16 @@
                     <div class="summary-card">
                         <h3>Order Summary</h3>
                         <div id="checkoutItems" class="checkout-items"></div>
+                        
+                        <!-- Promo Code Section -->
+                        <div class="promo-code-section">
+                            <div class="promo-input-group">
+                                <input type="text" id="promoCodeInput" placeholder="Enter promo code" />
+                                <button type="button" id="applyPromoBtn" class="apply-promo-btn">Apply</button>
+                            </div>
+                            <div id="promoMessage" class="promo-message"></div>
+                        </div>
+                        
                         <div class="summary-divider"></div>
                         <div class="summary-row">
                             <span>Subtotal</span>
@@ -486,6 +571,10 @@
                         <div class="summary-row">
                             <span>Shipping</span>
                             <span id="summaryShipping">FREE</span>
+                        </div>
+                        <div class="summary-row" id="discountRow" style="display: none;">
+                            <span>Discount <span id="promoCodeLabel"></span></span>
+                            <span id="summaryDiscount" style="color: #2ecc71;">-Rs 0</span>
                         </div>
                         <div class="summary-row">
                             <span>Tax</span>

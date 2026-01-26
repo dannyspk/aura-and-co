@@ -562,6 +562,37 @@ body {
     margin-bottom: 15px;
 }
 
+/* Enhanced Checkout Buttons */
+.checkout-section .btn-primary,
+.checkout-section .btn-secondary {
+    font-size: 1.1rem;
+    padding: 18px 40px;
+    font-weight: 600;
+    min-height: 56px;
+}
+
+.checkout-section .btn-primary.btn-block {
+    font-size: 1.2rem;
+    padding: 20px 40px;
+    min-height: 60px;
+}
+
+/* Mobile: Make buttons even bigger */
+@media (max-width: 768px) {
+    .checkout-section .btn-primary,
+    .checkout-section .btn-secondary {
+        font-size: 1.15rem;
+        padding: 20px 30px;
+        min-height: 60px;
+    }
+    
+    .checkout-section .btn-primary.btn-block {
+        font-size: 1.3rem;
+        padding: 22px 30px;
+        min-height: 64px;
+    }
+}
+
 /* Footer */
 .footer {
     background: var(--text-dark);

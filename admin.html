@@ -489,6 +489,26 @@
             box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
         }
 
+        /* Status Badges */
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -501,6 +521,10 @@
             z-index: 1000;
             overflow-y: auto;
             backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: block;
         }
 
         .modal-content {
@@ -1220,6 +1244,9 @@
             <button class="tab-btn" onclick="switchTab('categories')">
                 <i class="fas fa-tags"></i> Categories
             </button>
+            <button class="tab-btn" onclick="switchTab('promo-codes')">
+                <i class="fas fa-ticket-alt"></i> Promo Codes
+            </button>
             <button class="tab-btn" onclick="switchTab('orders')">
                 <i class="fas fa-shopping-cart"></i> Orders
             </button>
@@ -1277,6 +1304,38 @@
                         </thead>
                         <tbody id="categoriesTableBody">
                             <!-- Categories will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promo Codes Tab -->
+        <div class="tab-content" id="promo-codesTab">
+            <div class="admin-content">
+                <div class="actions-bar">
+                    <h2>Promo Codes</h2>
+                    <button class="btn-add" onclick="openAddPromoModal()">
+                        <i class="fas fa-plus"></i> Add New Promo Code
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Type</th>
+                                <th>Discount</th>
+                                <th>Min. Order</th>
+                                <th>Usage</th>
+                                <th>Valid Until</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promoCodesTableBody">
+                            <!-- Promo codes will be loaded here -->
                         </tbody>
                     </table>
                 </div>
@@ -1453,6 +1512,90 @@
                 <div class="modal-actions">
                     <button type="button" class="btn btn-cancel" onclick="closeCategoryModal()">Cancel</button>
                     <button type="submit" class="btn btn-save">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Promo Code Modal -->
+    <div class="modal" id="promoCodeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="promoCodeModalTitle">Add Promo Code</h2>
+                <button class="close-modal" onclick="closePromoCodeModal()">&times;</button>
+            </div>
+            <form id="promoCodeForm">
+                <input type="hidden" id="promoCodeId">
+                
+                <div class="form-group">
+                    <label for="promoCode">Promo Code *</label>
+                    <input type="text" id="promoCode" required placeholder="e.g., WELCOME10" style="text-transform: uppercase;">
+                    <small>Code will be automatically converted to uppercase</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="discountType">Discount Type *</label>
+                        <select id="discountType" required onchange="toggleMaxDiscount()">
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="fixed">Fixed Amount (Rs)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="discountValue">Discount Value *</label>
+                        <input type="number" id="discountValue" required min="0" step="0.01" placeholder="e.g., 10 or 500">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="minOrderAmount">Minimum Order Amount (Rs)</label>
+                        <input type="number" id="minOrderAmount" min="0" step="0.01" value="0" placeholder="0">
+                    </div>
+
+                    <div class="form-group" id="maxDiscountGroup">
+                        <label for="maxDiscount">Max Discount Cap (Rs)</label>
+                        <input type="number" id="maxDiscount" min="0" step="0.01" placeholder="Optional for percentage">
+                        <small>Only for percentage discounts</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="usageLimit">Usage Limit</label>
+                        <input type="number" id="usageLimit" min="1" placeholder="Leave empty for unlimited">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="promoActive">Status *</label>
+                        <select id="promoActive" required>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="validFrom">Valid From</label>
+                        <input type="datetime-local" id="validFrom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="validUntil">Valid Until</label>
+                        <input type="datetime-local" id="validUntil">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="promoDescription">Description</label>
+                    <textarea id="promoDescription" rows="3" placeholder="Internal notes about this promo code..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closePromoCodeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-save">Save Promo Code</button>
                 </div>
             </form>
         </div>

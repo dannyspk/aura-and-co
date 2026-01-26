@@ -391,6 +391,8 @@ function switchTab(tabName) {
         loadOrders();
     } else if (tabName === 'categories') {
         loadCategories();
+    } else if (tabName === 'promo-codes') {
+        loadPromoCodes();
     }
 }
 
@@ -1115,6 +1117,7 @@ window.onclick = function(event) {
     const modal = document.getElementById('productModal');
     const orderModal = document.getElementById('orderModal');
     const categoryModal = document.getElementById('categoryModal');
+    const promoCodeModal = document.getElementById('promoCodeModal');
     if (event.target === modal) {
         closeModal();
     }
@@ -1124,4 +1127,231 @@ window.onclick = function(event) {
     if (event.target === categoryModal) {
         closeCategoryModal();
     }
+    if (event.target === promoCodeModal) {
+        closePromoCodeModal();
+    }
 };
+
+// ==================== PROMO CODES MANAGEMENT ====================
+
+async function loadPromoCodes() {
+    try {
+        const response = await fetch('/api/promo-codes');
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to load promo codes');
+        }
+        
+        const tbody = document.getElementById('promoCodesTableBody');
+        
+        if (data.promoCodes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No promo codes found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.promoCodes.map(promo => {
+            const discountDisplay = promo.discount_type === 'percentage' 
+                ? `${promo.discount_value}%` 
+                : `Rs ${promo.discount_value.toLocaleString('en-PK')}`;
+            
+            const usageDisplay = promo.usage_limit 
+                ? `${promo.used_count || 0}/${promo.usage_limit}`
+                : `${promo.used_count || 0}/∞`;
+            
+            const validUntil = promo.valid_until 
+                ? new Date(promo.valid_until).toLocaleDateString('en-PK')
+                : 'No expiry';
+            
+            const statusClass = promo.active ? 'status-active' : 'status-inactive';
+            const statusText = promo.active ? 'Active' : 'Inactive';
+            
+            return `
+                <tr>
+                    <td><strong>${promo.code}</strong></td>
+                    <td>${promo.discount_type === 'percentage' ? 'Percentage' : 'Fixed'}</td>
+                    <td>${discountDisplay}</td>
+                    <td>Rs ${promo.min_order_amount?.toLocaleString('en-PK') || 0}</td>
+                    <td>${usageDisplay}</td>
+                    <td>${validUntil}</td>
+                    <td><span class="status ${statusClass}">${statusText}</span></td>
+                    <td class="actions">
+                        <button class="btn-edit" onclick="editPromoCode('${promo.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-delete" onclick="deletePromoCode('${promo.id}', '${promo.code}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading promo codes:', error);
+        const tbody = document.getElementById('promoCodesTableBody');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Failed to load promo codes</td></tr>';
+    }
+}
+
+function openAddPromoModal() {
+    document.getElementById('promoCodeModalTitle').textContent = 'Add Promo Code';
+    document.getElementById('promoCodeForm').reset();
+    document.getElementById('promoCodeId').value = '';
+    
+    // Set default values
+    document.getElementById('minOrderAmount').value = '0';
+    document.getElementById('promoActive').value = 'true';
+    document.getElementById('discountType').value = 'percentage';
+    toggleMaxDiscount();
+    
+    document.getElementById('promoCodeModal').classList.add('active');
+}
+
+function closePromoCodeModal() {
+    document.getElementById('promoCodeModal').classList.remove('active');
+    document.getElementById('promoCodeForm').reset();
+}
+
+function toggleMaxDiscount() {
+    const discountType = document.getElementById('discountType').value;
+    const maxDiscountGroup = document.getElementById('maxDiscountGroup');
+    
+    if (discountType === 'percentage') {
+        maxDiscountGroup.style.display = 'block';
+    } else {
+        maxDiscountGroup.style.display = 'none';
+        document.getElementById('maxDiscount').value = '';
+    }
+}
+
+async function editPromoCode(promoId) {
+    try {
+        console.log('Editing promo code:', promoId);
+        const response = await fetch('/api/promo-codes');
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error('Failed to load promo codes');
+        }
+        
+        console.log('Available promo codes:', data.promoCodes);
+        const promo = data.promoCodes.find(p => p.id === promoId);
+        
+        if (!promo) {
+            console.error('Promo code not found. Looking for:', promoId);
+            console.error('Available IDs:', data.promoCodes.map(p => p.id));
+            throw new Error('Promo code not found');
+        }
+        
+        console.log('Found promo:', promo);
+        
+        // Populate form
+        document.getElementById('promoCodeModalTitle').textContent = 'Edit Promo Code';
+        document.getElementById('promoCodeId').value = promo.id;
+        document.getElementById('promoCode').value = promo.code;
+        document.getElementById('discountType').value = promo.discount_type;
+        document.getElementById('discountValue').value = promo.discount_value;
+        document.getElementById('minOrderAmount').value = promo.min_order_amount || 0;
+        document.getElementById('maxDiscount').value = promo.max_discount || '';
+        document.getElementById('usageLimit').value = promo.usage_limit || '';
+        document.getElementById('promoActive').value = promo.active.toString();
+        document.getElementById('promoDescription').value = promo.description || '';
+        
+        // Set dates if they exist
+        if (promo.valid_from) {
+            const validFrom = new Date(promo.valid_from);
+            document.getElementById('validFrom').value = validFrom.toISOString().slice(0, 16);
+        }
+        
+        if (promo.valid_until) {
+            const validUntil = new Date(promo.valid_until);
+            document.getElementById('validUntil').value = validUntil.toISOString().slice(0, 16);
+        }
+        
+        toggleMaxDiscount();
+        document.getElementById('promoCodeModal').classList.add('active');
+        console.log('Modal should be open now');
+    } catch (error) {
+        console.error('Error loading promo code:', error);
+        alert('Failed to load promo code: ' + error.message);
+    }
+}
+
+async function deletePromoCode(promoId, promoCode) {
+    if (!confirm(`Are you sure you want to delete the promo code "${promoCode}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/promo-codes/${promoId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to delete promo code');
+        }
+        
+        alert('Promo code deleted successfully!');
+        await loadPromoCodes();
+    } catch (error) {
+        console.error('Error deleting promo code:', error);
+        alert('Failed to delete promo code: ' + error.message);
+    }
+}
+
+// Promo Code Form Submit
+document.getElementById('promoCodeForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const promoId = document.getElementById('promoCodeId').value;
+    const isEdit = !!promoId;
+    
+    const promoData = {
+        code: document.getElementById('promoCode').value.toUpperCase(),
+        discount_type: document.getElementById('discountType').value,
+        discount_value: parseFloat(document.getElementById('discountValue').value),
+        min_order_amount: parseFloat(document.getElementById('minOrderAmount').value) || 0,
+        max_discount: document.getElementById('maxDiscount').value ? parseFloat(document.getElementById('maxDiscount').value) : null,
+        usage_limit: document.getElementById('usageLimit').value ? parseInt(document.getElementById('usageLimit').value) : null,
+        active: document.getElementById('promoActive').value === 'true',
+        description: document.getElementById('promoDescription').value || null
+    };
+    
+    // Handle dates
+    const validFrom = document.getElementById('validFrom').value;
+    const validUntil = document.getElementById('validUntil').value;
+    
+    if (validFrom) {
+        promoData.valid_from = new Date(validFrom).toISOString();
+    }
+    
+    if (validUntil) {
+        promoData.valid_until = new Date(validUntil).toISOString();
+    }
+    
+    try {
+        const url = isEdit ? `/api/promo-codes/${promoId}` : '/api/promo-codes';
+        const method = isEdit ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(promoData)
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to save promo code');
+        }
+        
+        await loadPromoCodes();
+        closePromoCodeModal();
+        alert(isEdit ? 'Promo code updated successfully!' : 'Promo code created successfully!');
+    } catch (error) {
+        console.error('Error saving promo code:', error);
+        alert('Failed to save promo code: ' + error.message);
+    }
+});

@@ -66,10 +66,6 @@ function updateShippingCost() {
 // Display order summary
 function displayOrderSummary() {
     const checkoutItems = document.getElementById('checkoutItems');
-    const subtotal = cart.getTotal();
-    const shipping = calculateShipping(); // Use default (Karachi)
-    const tax = 0; // No tax display for Pakistan
-    const total = subtotal + shipping + tax;
     
     // Render items
     checkoutItems.innerHTML = cart.items.map(item => `
@@ -84,11 +80,8 @@ function displayOrderSummary() {
         </div>
     `).join('');
     
-    // Update summary totals
-    document.getElementById('summarySubtotal').textContent = `Rs ${subtotal.toLocaleString('en-PK')}`;
-    document.getElementById('summaryShipping').textContent = shipping === 0 ? 'FREE' : `Rs ${shipping.toLocaleString('en-PK')}`;
-    document.getElementById('summaryTax').textContent = `Rs ${tax.toLocaleString('en-PK')}`;
-    document.getElementById('summaryTotal').textContent = `Rs ${total.toLocaleString('en-PK')}`;
+    // Update summary totals using the new function
+    updateOrderSummary();
 }
 
 // Navigation functions
@@ -285,6 +278,11 @@ async function placeOrder() {
         const orderNumber = 'AUR' + Date.now().toString().slice(-8);
         
         // Prepare order data
+        const subtotal = cart.getTotal();
+        const shipping = calculateShipping(orderData.shipping.city);
+        const discount = appliedPromo ? appliedPromo.discount : 0;
+        const total = subtotal + shipping - discount;
+        
         const order = {
             order_number: orderNumber,
             customer_name: `${orderData.shipping.firstName} ${orderData.shipping.lastName}`,
@@ -292,10 +290,12 @@ async function placeOrder() {
             customer_phone: orderData.shipping.phone,
             shipping_address: orderData.shipping,
             items: orderData.items,
-            subtotal: cart.getTotal(),
-            shipping: calculateShipping(orderData.shipping.city),
+            subtotal: subtotal,
+            shipping: shipping,
             tax: 0,
-            total: cart.getTotal() + calculateShipping(orderData.shipping.city),
+            discount: discount,
+            promo_code: appliedPromo ? appliedPromo.code : null,
+            total: total,
             payment_method: orderData.payment.method,
             status: 'pending'
         };
@@ -396,3 +396,106 @@ function showNotification(message, type = 'success') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+
+// Promo Code Functionality
+let appliedPromo = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const applyPromoBtn = document.getElementById('applyPromoBtn');
+    const promoInput = document.getElementById('promoCodeInput');
+    
+    if (applyPromoBtn && promoInput) {
+        applyPromoBtn.addEventListener('click', applyPromoCode);
+        promoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyPromoCode();
+            }
+        });
+    }
+});
+
+async function applyPromoCode() {
+    const promoInput = document.getElementById('promoCodeInput');
+    const promoMessage = document.getElementById('promoMessage');
+    const applyBtn = document.getElementById('applyPromoBtn');
+    
+    const code = promoInput.value.trim().toUpperCase();
+    
+    if (!code) {
+        showPromoMessage('Please enter a promo code', 'error');
+        return;
+    }
+    
+    // Disable button while processing
+    applyBtn.disabled = true;
+    applyBtn.textContent = 'Applying...';
+    
+    try {
+        const subtotal = cart.getTotal();
+        const response = await fetch('/api/promo-codes/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, orderAmount: subtotal })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.valid) {
+            appliedPromo = data;
+            showPromoMessage(
+                `<i class="fas fa-check-circle"></i> ${data.description || 'Promo code applied!'} - You save Rs ${data.discount.toLocaleString('en-PK')}`,
+                'success'
+            );
+            updateOrderSummary();
+            applyBtn.textContent = 'Applied';
+        } else {
+            appliedPromo = null;
+            showPromoMessage(
+                `<i class="fas fa-times-circle"></i> ${data.error || 'Invalid promo code'}`,
+                'error'
+            );
+            applyBtn.textContent = 'Apply';
+            applyBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error applying promo code:', error);
+        showPromoMessage(
+            '<i class="fas fa-times-circle"></i> Failed to apply promo code. Please try again.',
+            'error'
+        );
+        applyBtn.textContent = 'Apply';
+        applyBtn.disabled = false;
+    }
+}
+
+function showPromoMessage(message, type) {
+    const promoMessage = document.getElementById('promoMessage');
+    promoMessage.innerHTML = message;
+    promoMessage.className = `promo-message ${type}`;
+}
+
+function updateOrderSummary() {
+    const subtotal = cart.getTotal();
+    const city = document.getElementById('city')?.value;
+    const shipping = calculateShipping(city);
+    const discount = appliedPromo ? appliedPromo.discount : 0;
+    const tax = 0;
+    const total = subtotal + shipping - discount + tax;
+    
+    document.getElementById('summarySubtotal').textContent = `Rs ${subtotal.toLocaleString('en-PK')}`;
+    document.getElementById('summaryShipping').textContent = shipping === 0 ? 'FREE' : `Rs ${shipping.toLocaleString('en-PK')}`;
+    document.getElementById('summaryTax').textContent = `Rs ${tax.toLocaleString('en-PK')}`;
+    document.getElementById('summaryTotal').textContent = `Rs ${total.toLocaleString('en-PK')}`;
+    
+    // Show/hide discount row
+    const discountRow = document.getElementById('discountRow');
+    if (discount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('summaryDiscount').textContent = `-Rs ${discount.toLocaleString('en-PK')}`;
+        document.getElementById('promoCodeLabel').textContent = `(${appliedPromo.code})`;
+    } else {
+        discountRow.style.display = 'none';
+    }
+}
+
