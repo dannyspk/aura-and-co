@@ -216,6 +216,137 @@
             }
         }
 
+        /* Add-Ons Styles */
+        .add-ons-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px dashed #c9a66b;
+        }
+
+        .add-ons-header h4 {
+            margin: 0 0 5px 0;
+            color: #7d6c4e;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-ons-subtitle {
+            margin: 0 0 15px 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .add-ons-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .addon-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .addon-item:hover {
+            border-color: #c9a66b;
+            box-shadow: 0 2px 8px rgba(201, 166, 107, 0.15);
+        }
+
+        .addon-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f0f0f0;
+        }
+
+        .addon-image-placeholder {
+            width: 60px;
+            height: 60px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 1.5rem;
+        }
+
+        .addon-details {
+            flex: 1;
+        }
+
+        .addon-name {
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 4px 0;
+        }
+
+        .addon-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0 0 4px 0;
+        }
+
+        .addon-price {
+            font-size: 0.9rem;
+            color: #c9a66b;
+            font-weight: 600;
+        }
+
+        .addon-quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .addon-qty-btn {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #c9a66b;
+            background: white;
+            color: #c9a66b;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .addon-qty-btn:hover:not(:disabled) {
+            background: #c9a66b;
+            color: white;
+        }
+
+        .addon-qty-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .addon-qty-display {
+            min-width: 35px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .addon-stock-info {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 2px;
+        }
+
         /* Promo Code Styles */
         .promo-code-section {
             margin: 20px 0;
@@ -289,6 +420,196 @@
 
         .promo-message i {
             margin-right: 8px;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            /* Add-Ons Mobile Styles */
+            .add-ons-section {
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .add-ons-header h4 {
+                font-size: 1rem;
+            }
+
+            .add-ons-subtitle {
+                font-size: 0.8rem;
+                margin-bottom: 12px;
+            }
+
+            .addon-item {
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+
+            .addon-image,
+            .addon-image-placeholder {
+                width: 50px;
+                height: 50px;
+            }
+
+            .addon-details {
+                flex: 1;
+                min-width: 140px;
+            }
+
+            .addon-name {
+                font-size: 0.95rem;
+            }
+
+            .addon-description {
+                font-size: 0.8rem;
+            }
+
+            .addon-price {
+                font-size: 0.85rem;
+            }
+
+            .addon-quantity-control {
+                margin-top: 8px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .addon-qty-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            /* Promo Code Mobile Styles */
+            .promo-input-group {
+                flex-direction: column;
+            }
+
+            .promo-input-group input {
+                width: 100%;
+            }
+
+            .apply-promo-btn {
+                width: 100%;
+                padding: 14px 24px;
+            }
+
+            /* Checkout Grid Mobile */
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                position: static;
+                margin-top: 30px;
+            }
+
+            /* Step Indicators Mobile */
+            .checkout-steps {
+                padding: 15px;
+            }
+
+            .step {
+                font-size: 0.85rem;
+            }
+
+            .step-number {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
+            }
+
+            .step-label {
+                display: none;
+            }
+
+            /* Forms Mobile */
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            /* Buttons Mobile */
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
+
+            /* Summary Card Mobile */
+            .summary-card {
+                padding: 20px;
+            }
+
+            .checkout-item {
+                padding: 12px 0;
+            }
+
+            .checkout-item img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .item-name {
+                font-size: 0.9rem;
+            }
+
+            .item-quantity {
+                font-size: 0.85rem;
+            }
+
+            .item-price {
+                font-size: 0.95rem;
+            }
+
+            /* Review Section Mobile */
+            .review-section {
+                padding: 15px;
+            }
+
+            .review-section h4 {
+                font-size: 1rem;
+            }
+
+            .info-item {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Extra Small Mobile (< 480px) */
+        @media (max-width: 480px) {
+            .addon-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .addon-image,
+            .addon-image-placeholder {
+                align-self: center;
+                margin-bottom: 10px;
+            }
+
+            .addon-quantity-control {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .add-ons-header h4 {
+                font-size: 0.95rem;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+
+            .checkout-steps {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -553,6 +874,17 @@
                     <div class="summary-card">
                         <h3>Order Summary</h3>
                         <div id="checkoutItems" class="checkout-items"></div>
+                        
+                        <!-- Add-Ons Section (shown when Custom Jewellery items are in cart) -->
+                        <div id="addOnsSection" class="add-ons-section" style="display: none;">
+                            <div class="add-ons-header">
+                                <h4><i class="fas fa-plus-circle"></i> Add Charms to Your Jewellery</h4>
+                                <p class="add-ons-subtitle">Customize your jewellery with our beautiful charms</p>
+                            </div>
+                            <div id="addOnsList" class="add-ons-list">
+                                <!-- Add-ons will be loaded here -->
+                            </div>
+                        </div>
                         
                         <!-- Promo Code Section -->
                         <div class="promo-code-section">

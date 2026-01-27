@@ -391,6 +391,8 @@ function switchTab(tabName) {
         loadOrders();
     } else if (tabName === 'categories') {
         loadCategories();
+    } else if (tabName === 'add-ons') {
+        loadAddOns();
     } else if (tabName === 'promo-codes') {
         loadPromoCodes();
     }
@@ -1355,3 +1357,306 @@ document.getElementById('promoCodeForm').addEventListener('submit', async functi
         alert('Failed to save promo code: ' + error.message);
     }
 });
+
+// ==================== ADD-ONS MANAGEMENT ====================
+
+async function loadAddOns() {
+    try {
+        const response = await fetch('/api/add-ons');
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to load add-ons');
+        }
+        
+        const tbody = document.getElementById('addOnsTableBody');
+        
+        if (data.addOns.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No add-ons found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.addOns.map(addon => {
+            const imageHtml = addon.image_url 
+                ? `<img src="${addon.image_url}" alt="${addon.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">`
+                : '<div style="width: 50px; height: 50px; background: #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-image"></i></div>';
+            
+            const statusClass = addon.active ? 'status-active' : 'status-inactive';
+            const statusText = addon.active ? 'Active' : 'Inactive';
+            
+            const applicableTo = addon.applicable_to ? addon.applicable_to.join(', ') : 'None';
+            
+            return `
+                <tr>
+                    <td>${imageHtml}</td>
+                    <td><strong>${addon.name}</strong></td>
+                    <td>${addon.category}</td>
+                    <td>Rs ${addon.price.toLocaleString('en-PK')}</td>
+                    <td>${addon.stock_quantity}</td>
+                    <td><small>${applicableTo}</small></td>
+                    <td><span class="status ${statusClass}">${statusText}</span></td>
+                    <td class="actions">
+                        <button class="btn-edit" onclick="editAddOn('${addon.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-delete" onclick="deleteAddOn('${addon.id}', '${addon.name}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading add-ons:', error);
+        const tbody = document.getElementById('addOnsTableBody');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Failed to load add-ons</td></tr>';
+    }
+}
+
+async function loadCategoriesForAddOn() {
+    try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+        
+        const select = document.getElementById('addOnApplicableTo');
+        select.innerHTML = data.categories.map(cat => 
+            `<option value="${cat.name}">${cat.name}</option>`
+        ).join('');
+    } catch (error) {
+        console.error('Error loading categories for add-on:', error);
+    }
+}
+
+function openAddAddonModal() {
+    document.getElementById('addOnModalTitle').textContent = 'Add New Add-On';
+    document.getElementById('addOnForm').reset();
+    document.getElementById('addOnId').value = '';
+    
+    // Set default values
+    document.getElementById('addOnStock').value = '0';
+    document.getElementById('addOnActive').value = 'true';
+    document.getElementById('addOnCategory').value = 'charms';
+    
+    // Reset image input
+    document.querySelector('input[name="addOnImageMethod"][value="url"]').checked = true;
+    toggleAddOnImageMethod();
+    
+    // Load categories for "Applicable To" dropdown
+    loadCategoriesForAddOn();
+    
+    document.getElementById('addOnModal').classList.add('active');
+}
+
+function closeAddOnModal() {
+    document.getElementById('addOnModal').classList.remove('active');
+    document.getElementById('addOnForm').reset();
+}
+
+function toggleAddOnImageMethod() {
+    const method = document.querySelector('input[name="addOnImageMethod"]:checked').value;
+    const urlSection = document.getElementById('addOnUrlInputSection');
+    const fileSection = document.getElementById('addOnFileInputSection');
+    
+    if (method === 'url') {
+        urlSection.style.display = 'block';
+        fileSection.style.display = 'none';
+    } else {
+        urlSection.style.display = 'none';
+        fileSection.style.display = 'block';
+    }
+}
+
+// Handle add-on image file upload
+document.getElementById('addOnImageFile').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Upload failed');
+        }
+        
+        // Show preview
+        const preview = document.getElementById('addOnImagePreview');
+        preview.style.display = 'block';
+        preview.querySelector('img').src = data.url;
+        
+        // Store the URL for form submission
+        document.getElementById('addOnImageFile').dataset.uploadedUrl = data.url;
+        
+        alert('Image uploaded successfully!');
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image: ' + error.message);
+    }
+});
+
+async function editAddOn(addOnId) {
+    try {
+        const response = await fetch('/api/add-ons');
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error('Failed to load add-ons');
+        }
+        
+        const addon = data.addOns.find(a => a.id === addOnId);
+        
+        if (!addon) {
+            throw new Error('Add-on not found');
+        }
+        
+        // Populate form
+        document.getElementById('addOnModalTitle').textContent = 'Edit Add-On';
+        document.getElementById('addOnId').value = addon.id;
+        document.getElementById('addOnName').value = addon.name;
+        document.getElementById('addOnDescription').value = addon.description || '';
+        document.getElementById('addOnPrice').value = addon.price;
+        document.getElementById('addOnStock').value = addon.stock_quantity;
+        document.getElementById('addOnCategory').value = addon.category;
+        document.getElementById('addOnActive').value = addon.active.toString();
+        
+        // Load categories and then select the applicable ones
+        await loadCategoriesForAddOn();
+        
+        const select = document.getElementById('addOnApplicableTo');
+        Array.from(select.options).forEach(option => {
+            option.selected = addon.applicable_to && addon.applicable_to.includes(option.value);
+        });
+        
+        // Set image
+        if (addon.image_url) {
+            document.getElementById('addOnImageUrl').value = addon.image_url;
+        }
+        
+        document.getElementById('addOnModal').classList.add('active');
+    } catch (error) {
+        console.error('Error loading add-on:', error);
+        alert('Failed to load add-on: ' + error.message);
+    }
+}
+
+async function deleteAddOn(addOnId, addOnName) {
+    if (!confirm(`Are you sure you want to delete the add-on "${addOnName}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/add-ons/${addOnId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to delete add-on');
+        }
+        
+        alert('Add-on deleted successfully!');
+        await loadAddOns();
+    } catch (error) {
+        console.error('Error deleting add-on:', error);
+        alert('Failed to delete add-on: ' + error.message);
+    }
+}
+
+// Add-On Form Submit
+document.getElementById('addOnForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const addOnId = document.getElementById('addOnId').value;
+    const isEdit = !!addOnId;
+    
+    // Get selected categories
+    const select = document.getElementById('addOnApplicableTo');
+    const selectedCategories = Array.from(select.selectedOptions).map(opt => opt.value);
+    
+    if (selectedCategories.length === 0) {
+        alert('Please select at least one applicable category');
+        return;
+    }
+    
+    // Get image URL
+    let imageUrl = '';
+    const imageMethod = document.querySelector('input[name="addOnImageMethod"]:checked').value;
+    if (imageMethod === 'url') {
+        imageUrl = document.getElementById('addOnImageUrl').value;
+    } else {
+        imageUrl = document.getElementById('addOnImageFile').dataset.uploadedUrl || '';
+    }
+    
+    const addOnData = {
+        name: document.getElementById('addOnName').value,
+        description: document.getElementById('addOnDescription').value || null,
+        price: parseFloat(document.getElementById('addOnPrice').value),
+        stock_quantity: parseInt(document.getElementById('addOnStock').value),
+        category: document.getElementById('addOnCategory').value,
+        applicable_to: selectedCategories,
+        image_url: imageUrl || null,
+        active: document.getElementById('addOnActive').value === 'true'
+    };
+    
+    try {
+        const url = isEdit ? `/api/add-ons/${addOnId}` : '/api/add-ons';
+        const method = isEdit ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(addOnData)
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to save add-on');
+        }
+        
+        await loadAddOns();
+        closeAddOnModal();
+        alert(isEdit ? 'Add-on updated successfully!' : 'Add-on created successfully!');
+    } catch (error) {
+        console.error('Error saving add-on:', error);
+        alert('Failed to save add-on: ' + error.message);
+    }
+});
+
+// Update window.onclick to include add-on modal
+const originalWindowClickHandler = window.onclick;
+window.onclick = function(event) {
+    const modal = document.getElementById('productModal');
+    const orderModal = document.getElementById('orderModal');
+    const categoryModal = document.getElementById('categoryModal');
+    const promoCodeModal = document.getElementById('promoCodeModal');
+    const addOnModal = document.getElementById('addOnModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+    if (event.target === orderModal) {
+        closeOrderModal();
+    }
+    if (event.target === categoryModal) {
+        closeCategoryModal();
+    }
+    if (event.target === promoCodeModal) {
+        closePromoCodeModal();
+    }
+    if (event.target === addOnModal) {
+        closeAddOnModal();
+    }
+};

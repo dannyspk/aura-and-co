@@ -1244,6 +1244,9 @@
             <button class="tab-btn" onclick="switchTab('categories')">
                 <i class="fas fa-tags"></i> Categories
             </button>
+            <button class="tab-btn" onclick="switchTab('add-ons')">
+                <i class="fas fa-plus-circle"></i> Add-Ons
+            </button>
             <button class="tab-btn" onclick="switchTab('promo-codes')">
                 <i class="fas fa-ticket-alt"></i> Promo Codes
             </button>
@@ -1304,6 +1307,38 @@
                         </thead>
                         <tbody id="categoriesTableBody">
                             <!-- Categories will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add-Ons Tab -->
+        <div class="tab-content" id="add-onsTab">
+            <div class="admin-content">
+                <div class="actions-bar">
+                    <h2>Add-Ons (Charms)</h2>
+                    <button class="btn-add" onclick="openAddAddonModal()">
+                        <i class="fas fa-plus"></i> Add New Add-On
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Applies To</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="addOnsTableBody">
+                            <!-- Add-ons will be loaded here -->
                         </tbody>
                     </table>
                 </div>
@@ -1596,6 +1631,99 @@
                 <div class="modal-actions">
                     <button type="button" class="btn btn-cancel" onclick="closePromoCodeModal()">Cancel</button>
                     <button type="submit" class="btn btn-save">Save Promo Code</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add-On Modal -->
+    <div class="modal" id="addOnModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="addOnModalTitle">Add New Add-On</h2>
+                <button class="close-modal" onclick="closeAddOnModal()">&times;</button>
+            </div>
+            <form id="addOnForm">
+                <input type="hidden" id="addOnId">
+                
+                <div class="form-group">
+                    <label for="addOnName">Name *</label>
+                    <input type="text" id="addOnName" required placeholder="e.g., Heart Charm">
+                </div>
+
+                <div class="form-group">
+                    <label for="addOnDescription">Description</label>
+                    <textarea id="addOnDescription" rows="2" placeholder="Brief description of the add-on..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addOnPrice">Price (Rs) *</label>
+                        <input type="number" id="addOnPrice" required min="0" step="0.01" placeholder="500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="addOnStock">Stock Quantity *</label>
+                        <input type="number" id="addOnStock" required min="0" value="0" placeholder="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="addOnCategory">Category *</label>
+                    <select id="addOnCategory" required>
+                        <option value="charms">Charms</option>
+                        <option value="pendants">Pendants</option>
+                        <option value="stones">Stones</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="addOnApplicableTo">Applicable To (Product Categories) *</label>
+                    <select id="addOnApplicableTo" multiple size="4" required>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                    <small>Hold Ctrl/Cmd to select multiple categories</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Image</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="addOnImageMethod" value="url" checked onchange="toggleAddOnImageMethod()">
+                            <span>URL</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="addOnImageMethod" value="upload" onchange="toggleAddOnImageMethod()">
+                            <span>Upload</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="addOnUrlInputSection" class="form-group">
+                    <label for="addOnImageUrl">Image URL</label>
+                    <input type="url" id="addOnImageUrl" placeholder="https://example.com/charm.jpg">
+                </div>
+
+                <div id="addOnFileInputSection" class="form-group" style="display: none;">
+                    <label for="addOnImageFile">Upload Image</label>
+                    <input type="file" id="addOnImageFile" accept="image/*">
+                    <div id="addOnImagePreview" style="display: none; margin-top: 10px;">
+                        <img src="" alt="Preview" style="max-width: 150px; border-radius: 8px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="addOnActive">Status *</label>
+                    <select id="addOnActive" required>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeAddOnModal()">Cancel</button>
+                    <button type="submit" class="btn btn-save">Save Add-On</button>
                 </div>
             </form>
         </div>

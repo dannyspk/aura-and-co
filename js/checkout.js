@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display order summary
     displayOrderSummary();
     
+    // Load add-ons if applicable
+    loadAddOns();
+    
     // Setup form validation
     setupFormValidation();
     
@@ -31,6 +34,134 @@ document.addEventListener('DOMContentLoaded', function() {
         cityField.addEventListener('change', updateShippingCost);
     }
 });
+
+// ==================== ADD-ONS FUNCTIONALITY ====================
+
+async function loadAddOns() {
+    // Check if cart has any "customised jewellery" items (case-insensitive)
+    const hasCustomJewellery = cart.items.some(item => {
+        const category = item.category?.toLowerCase() || '';
+        return category === 'customised jewellery' || category === 'custom jewellery';
+    });
+    
+    if (!hasCustomJewellery) {
+        document.getElementById('addOnsSection').style.display = 'none';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/add-ons?applicable_to=customised jewellery');
+        const data = await response.json();
+        
+        if (!data.success || !data.addOns || data.addOns.length === 0) {
+            document.getElementById('addOnsSection').style.display = 'none';
+            return;
+        }
+        
+        // Filter only active add-ons with stock
+        const activeAddOns = data.addOns.filter(addon => addon.active && addon.stock_quantity > 0);
+        
+        if (activeAddOns.length === 0) {
+            document.getElementById('addOnsSection').style.display = 'none';
+            return;
+        }
+        
+        // Display add-ons
+        displayAddOns(activeAddOns);
+        document.getElementById('addOnsSection').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading add-ons:', error);
+        document.getElementById('addOnsSection').style.display = 'none';
+    }
+}
+
+function displayAddOns(addOns) {
+    const addOnsList = document.getElementById('addOnsList');
+    
+    addOnsList.innerHTML = addOns.map(addon => {
+        const imageHtml = addon.image_url 
+            ? `<img src="${addon.image_url}" alt="${addon.name}" class="addon-image">`
+            : `<div class="addon-image-placeholder"><i class="fas fa-gem"></i></div>`;
+        
+        const currentQty = selectedAddOns[addon.id]?.quantity || 0;
+        
+        return `
+            <div class="addon-item" data-addon-id="${addon.id}">
+                ${imageHtml}
+                <div class="addon-details">
+                    <div class="addon-name">${addon.name}</div>
+                    ${addon.description ? `<div class="addon-description">${addon.description}</div>` : ''}
+                    <div class="addon-price">Rs ${addon.price.toLocaleString('en-PK')}</div>
+                    <div class="addon-stock-info">In stock: ${addon.stock_quantity}</div>
+                </div>
+                <div class="addon-quantity-control">
+                    <button class="addon-qty-btn" onclick="changeAddonQuantity('${addon.id}', -1)" ${currentQty === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <div class="addon-qty-display" id="addon-qty-${addon.id}">${currentQty}</div>
+                    <button class="addon-qty-btn" onclick="changeAddonQuantity('${addon.id}', 1)" ${currentQty >= addon.stock_quantity ? 'disabled' : ''}>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function changeAddonQuantity(addonId, change) {
+    // Get addon data
+    const addonElement = document.querySelector(`[data-addon-id="${addonId}"]`);
+    if (!addonElement) return;
+    
+    // Fetch current addon data from API (we need the full object)
+    fetch(`/api/add-ons`)
+        .then(res => res.json())
+        .then(data => {
+            const addon = data.addOns.find(a => a.id === addonId);
+            if (!addon) return;
+            
+            // Calculate new quantity
+            const currentQty = selectedAddOns[addonId]?.quantity || 0;
+            const newQty = Math.max(0, Math.min(addon.stock_quantity, currentQty + change));
+            
+            if (newQty === 0) {
+                // Remove from selection
+                delete selectedAddOns[addonId];
+            } else {
+                // Update selection
+                selectedAddOns[addonId] = {
+                    addon: addon,
+                    quantity: newQty
+                };
+            }
+            
+            // Update display
+            document.getElementById(`addon-qty-${addonId}`).textContent = newQty;
+            
+            // Update buttons
+            const minusBtn = addonElement.querySelector('.addon-qty-btn:first-of-type');
+            const plusBtn = addonElement.querySelector('.addon-qty-btn:last-of-type');
+            
+            minusBtn.disabled = newQty === 0;
+            plusBtn.disabled = newQty >= addon.stock_quantity;
+            
+            // Update order summary
+            updateOrderSummary();
+        })
+        .catch(error => {
+            console.error('Error updating addon quantity:', error);
+        });
+}
+
+function getAddOnsTotal() {
+    let total = 0;
+    for (const addonId in selectedAddOns) {
+        const { addon, quantity } = selectedAddOns[addonId];
+        total += addon.price * quantity;
+    }
+    return total;
+}
 
 // Calculate shipping cost based on city
 function calculateShipping(city = null) {
@@ -279,9 +410,22 @@ async function placeOrder() {
         
         // Prepare order data
         const subtotal = cart.getTotal();
+        const addOnsTotal = getAddOnsTotal();
         const shipping = calculateShipping(orderData.shipping.city);
         const discount = appliedPromo ? appliedPromo.discount : 0;
-        const total = subtotal + shipping - discount;
+        const total = subtotal + addOnsTotal + shipping - discount;
+        
+        // Format add-ons for database
+        const addOnsArray = Object.keys(selectedAddOns).map(addonId => {
+            const { addon, quantity } = selectedAddOns[addonId];
+            return {
+                id: addon.id,
+                name: addon.name,
+                price: addon.price,
+                quantity: quantity,
+                total: addon.price * quantity
+            };
+        });
         
         const order = {
             order_number: orderNumber,
@@ -290,6 +434,7 @@ async function placeOrder() {
             customer_phone: orderData.shipping.phone,
             shipping_address: orderData.shipping,
             items: orderData.items,
+            add_ons: addOnsArray,
             subtotal: subtotal,
             shipping: shipping,
             tax: 0,
@@ -399,6 +544,7 @@ function showNotification(message, type = 'success') {
 
 // Promo Code Functionality
 let appliedPromo = null;
+let selectedAddOns = {}; // Store selected add-ons with quantities { addonId: { addon: object, quantity: number } }
 
 document.addEventListener('DOMContentLoaded', function() {
     const applyPromoBtn = document.getElementById('applyPromoBtn');
@@ -477,13 +623,37 @@ function showPromoMessage(message, type) {
 
 function updateOrderSummary() {
     const subtotal = cart.getTotal();
+    const addOnsTotal = getAddOnsTotal();
     const city = document.getElementById('city')?.value;
     const shipping = calculateShipping(city);
     const discount = appliedPromo ? appliedPromo.discount : 0;
     const tax = 0;
-    const total = subtotal + shipping - discount + tax;
+    const total = subtotal + addOnsTotal + shipping - discount + tax;
     
     document.getElementById('summarySubtotal').textContent = `Rs ${subtotal.toLocaleString('en-PK')}`;
+    
+    // Show add-ons row if any selected
+    let addOnsRowHtml = '';
+    if (addOnsTotal > 0) {
+        const addOnsCount = Object.keys(selectedAddOns).length;
+        addOnsRowHtml = `
+            <div class="summary-row">
+                <span>Add-ons (${addOnsCount} item${addOnsCount > 1 ? 's' : ''})</span>
+                <span>Rs ${addOnsTotal.toLocaleString('en-PK')}</span>
+            </div>
+        `;
+    }
+    
+    // Update or add add-ons row
+    const existingAddOnsRow = document.querySelector('.summary-row-addons');
+    if (existingAddOnsRow) {
+        existingAddOnsRow.remove();
+    }
+    if (addOnsTotal > 0) {
+        const shippingRow = document.querySelector('.summary-row:nth-of-type(2)');
+        shippingRow.insertAdjacentHTML('afterend', `<div class="summary-row summary-row-addons"><span>Add-ons (${Object.keys(selectedAddOns).length})</span><span>Rs ${addOnsTotal.toLocaleString('en-PK')}</span></div>`);
+    }
+    
     document.getElementById('summaryShipping').textContent = shipping === 0 ? 'FREE' : `Rs ${shipping.toLocaleString('en-PK')}`;
     document.getElementById('summaryTax').textContent = `Rs ${tax.toLocaleString('en-PK')}`;
     document.getElementById('summaryTotal').textContent = `Rs ${total.toLocaleString('en-PK')}`;

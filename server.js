@@ -764,6 +764,113 @@ app.delete('/api/promo-codes/:id', async (req, res) => {
     }
 });
 
+// ============ ADD-ONS MANAGEMENT ============
+
+// Get all add-ons (optionally filter by category and applicable_to)
+app.get('/api/add-ons', async (req, res) => {
+    try {
+        const { category, applicable_to } = req.query;
+        
+        let query = supabase
+            .from('add_ons')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (category) {
+            query = query.eq('category', category);
+        }
+        
+        if (applicable_to) {
+            query = query.contains('applicable_to', [applicable_to]);
+        }
+        
+        const { data: addOns, error } = await query;
+        
+        if (error) throw error;
+        res.json({ success: true, addOns: addOns || [] });
+    } catch (error) {
+        console.error('Error fetching add-ons:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch add-ons' });
+    }
+});
+
+// Create add-on (for admin)
+app.post('/api/add-ons', async (req, res) => {
+    try {
+        const newAddOn = {
+            name: req.body.name,
+            description: req.body.description || null,
+            price: parseFloat(req.body.price),
+            image_url: req.body.image_url || null,
+            category: req.body.category,
+            applicable_to: req.body.applicable_to || [],
+            stock_quantity: parseInt(req.body.stock_quantity) || 0,
+            active: req.body.active !== false
+        };
+        
+        const { data: addOn, error } = await supabase
+            .from('add_ons')
+            .insert([newAddOn])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, addOn });
+    } catch (error) {
+        console.error('Error creating add-on:', error);
+        res.status(500).json({ success: false, error: 'Failed to create add-on' });
+    }
+});
+
+// Update add-on (for admin)
+app.put('/api/add-ons/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = {
+            name: req.body.name,
+            description: req.body.description || null,
+            price: parseFloat(req.body.price),
+            image_url: req.body.image_url || null,
+            category: req.body.category,
+            applicable_to: req.body.applicable_to || [],
+            stock_quantity: parseInt(req.body.stock_quantity) || 0,
+            active: req.body.active !== false,
+            updated_at: new Date().toISOString()
+        };
+        
+        const { data: addOn, error } = await supabase
+            .from('add_ons')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, addOn });
+    } catch (error) {
+        console.error('Error updating add-on:', error);
+        res.status(500).json({ success: false, error: 'Failed to update add-on' });
+    }
+});
+
+// Delete add-on (for admin)
+app.delete('/api/add-ons/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { error } = await supabase
+            .from('add_ons')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting add-on:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete add-on' });
+    }
+});
+
 // ============ IMAGE UPLOAD ============
 
 // Image upload endpoint
