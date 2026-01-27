@@ -400,5 +400,277 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     }
 });
 
+// ============ PROMO CODES ENDPOINTS ============
+
+// Validate promo code
+app.post('/api/promo-codes/validate', async (req, res) => {
+    try {
+        const { code, orderAmount } = req.body;
+        
+        if (!code || !orderAmount) {
+            return res.status(400).json({ error: 'Code and order amount are required' });
+        }
+        
+        // Fetch promo code
+        const { data: promoCode, error } = await supabase
+            .from('promo_codes')
+            .select('*')
+            .eq('code', code.toUpperCase())
+            .single();
+        
+        if (error || !promoCode) {
+            return res.status(404).json({ error: 'Invalid promo code' });
+        }
+        
+        // Check if promo code is active
+        if (!promoCode.active) {
+            return res.status(400).json({ error: 'This promo code is no longer active' });
+        }
+        
+        // Check validity period
+        const now = new Date();
+        if (promoCode.valid_from && new Date(promoCode.valid_from) > now) {
+            return res.status(400).json({ error: 'This promo code is not yet valid' });
+        }
+        if (promoCode.valid_until && new Date(promoCode.valid_until) < now) {
+            return res.status(400).json({ error: 'This promo code has expired' });
+        }
+        
+        // Check usage limit
+        if (promoCode.usage_limit && promoCode.used_count >= promoCode.usage_limit) {
+            return res.status(400).json({ error: 'This promo code has reached its usage limit' });
+        }
+        
+        // Check minimum order amount
+        if (promoCode.min_order_amount && orderAmount < promoCode.min_order_amount) {
+            return res.status(400).json({ 
+                error: `Minimum order amount of Rs ${promoCode.min_order_amount.toLocaleString('en-PK')} required` 
+            });
+        }
+        
+        // Calculate discount
+        let discount = 0;
+        if (promoCode.discount_type === 'percentage') {
+            discount = (orderAmount * promoCode.discount_value) / 100;
+            if (promoCode.max_discount) {
+                discount = Math.min(discount, promoCode.max_discount);
+            }
+        } else if (promoCode.discount_type === 'fixed') {
+            discount = promoCode.discount_value;
+        }
+        
+        // Ensure discount doesn't exceed order amount
+        discount = Math.min(discount, orderAmount);
+        
+        res.json({
+            valid: true,
+            code: promoCode.code,
+            discount: discount,
+            description: promoCode.description,
+            discountType: promoCode.discount_type,
+            discountValue: promoCode.discount_value
+        });
+    } catch (error) {
+        console.error('Error validating promo code:', error);
+        res.status(500).json({ error: 'Failed to validate promo code' });
+    }
+});
+
+// Get all promo codes (for admin)
+app.get('/api/promo-codes', async (req, res) => {
+    try {
+        const { data: promoCodes, error } = await supabase
+            .from('promo_codes')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.json({ success: true, promoCodes: promoCodes || [] });
+    } catch (error) {
+        console.error('Error fetching promo codes:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch promo codes' });
+    }
+});
+
+// Create promo code (for admin)
+app.post('/api/promo-codes', async (req, res) => {
+    try {
+        const promoCode = {
+            code: req.body.code.toUpperCase(),
+            discount_type: req.body.discount_type,
+            discount_value: req.body.discount_value,
+            min_order_amount: req.body.min_order_amount || 0,
+            max_discount: req.body.max_discount,
+            usage_limit: req.body.usage_limit,
+            active: req.body.active !== false,
+            valid_from: req.body.valid_from,
+            valid_until: req.body.valid_until,
+            description: req.body.description
+        };
+        
+        const { data, error } = await supabase
+            .from('promo_codes')
+            .insert([promoCode])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, promoCode: data });
+    } catch (error) {
+        console.error('Error creating promo code:', error);
+        res.status(500).json({ error: 'Failed to create promo code' });
+    }
+});
+
+// Update promo code (for admin)
+app.put('/api/promo-codes/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = { ...req.body, updated_at: new Date().toISOString() };
+        
+        if (updates.code) {
+            updates.code = updates.code.toUpperCase();
+        }
+        
+        const { data, error } = await supabase
+            .from('promo_codes')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, promoCode: data });
+    } catch (error) {
+        console.error('Error updating promo code:', error);
+        res.status(500).json({ error: 'Failed to update promo code' });
+    }
+});
+
+// Delete promo code (for admin)
+app.delete('/api/promo-codes/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { error } = await supabase
+            .from('promo_codes')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting promo code:', error);
+        res.status(500).json({ error: 'Failed to delete promo code' });
+    }
+});
+
+// ============ ADD-ONS ENDPOINTS ============
+
+// Get add-ons (with optional filtering)
+app.get('/api/add-ons', async (req, res) => {
+    try {
+        const { category, applicable_to } = req.query;
+        
+        let query = supabase
+            .from('add_ons')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (category) {
+            query = query.eq('category', category);
+        }
+        
+        if (applicable_to) {
+            query = query.contains('applicable_to', [applicable_to]);
+        }
+        
+        const { data: addOns, error } = await query;
+        
+        if (error) throw error;
+        res.json({ success: true, addOns: addOns || [] });
+    } catch (error) {
+        console.error('Error fetching add-ons:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch add-ons' });
+    }
+});
+
+// Create add-on (for admin)
+app.post('/api/add-ons', async (req, res) => {
+    try {
+        const newAddOn = {
+            name: req.body.name,
+            description: req.body.description || null,
+            price: parseFloat(req.body.price),
+            image_url: req.body.image_url || null,
+            category: req.body.category,
+            applicable_to: req.body.applicable_to || [],
+            stock_quantity: parseInt(req.body.stock_quantity) || 0,
+            active: req.body.active !== false
+        };
+        
+        const { data: addOn, error } = await supabase
+            .from('add_ons')
+            .insert([newAddOn])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, addOn });
+    } catch (error) {
+        console.error('Error creating add-on:', error);
+        res.status(500).json({ success: false, error: 'Failed to create add-on' });
+    }
+});
+
+// Update add-on (for admin)
+app.put('/api/add-ons/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = {
+            name: req.body.name,
+            description: req.body.description || null,
+            price: parseFloat(req.body.price),
+            image_url: req.body.image_url || null,
+            category: req.body.category,
+            applicable_to: req.body.applicable_to || [],
+            stock_quantity: parseInt(req.body.stock_quantity) || 0,
+            active: req.body.active !== false,
+            updated_at: new Date().toISOString()
+        };
+        
+        const { data: addOn, error } = await supabase
+            .from('add_ons')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, addOn });
+    } catch (error) {
+        console.error('Error updating add-on:', error);
+        res.status(500).json({ success: false, error: 'Failed to update add-on' });
+    }
+});
+
+// Delete add-on (for admin)
+app.delete('/api/add-ons/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { error } = await supabase
+            .from('add_ons')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting add-on:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete add-on' });
+    }
+});
+
 // Export for Vercel serverless
 module.exports = app;
