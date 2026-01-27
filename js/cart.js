@@ -95,7 +95,17 @@ class ShoppingCart {
     // Get cart total
     getTotal() {
         return this.items.reduce((total, item) => {
-            return total + (item.price * item.quantity);
+            let itemTotal = item.price * item.quantity;
+            
+            // Add add-ons total if any
+            if (item.addOns && Array.isArray(item.addOns)) {
+                const addOnsTotal = item.addOns.reduce((sum, addon) => {
+                    return sum + (addon.price * addon.quantity);
+                }, 0);
+                itemTotal += addOnsTotal * item.quantity; // Multiply by product quantity
+            }
+            
+            return total + itemTotal;
         }, 0);
     }
 
@@ -156,28 +166,55 @@ class ShoppingCart {
             return;
         }
 
-        cartItemsContainer.innerHTML = this.items.map(item => `
-            <div class="cart-item" data-product-id="${item.id}">
-                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
-                <div class="cart-item-details">
-                    <div class="cart-item-name">${item.displayName || item.name}</div>
-                    <div class="cart-item-price">Rs ${item.price.toLocaleString('en-PK')}</div>
-                    ${item.customRequest ? `<div class="cart-item-custom"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
-                    <div class="cart-item-quantity">
-                        <button class="qty-btn" onclick="window.cart.updateQuantity(${item.id}, ${item.quantity - 1})">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <span>${item.quantity}</span>
-                        <button class="qty-btn" onclick="window.cart.updateQuantity(${item.id}, ${item.quantity + 1})">
-                            <i class="fas fa-plus"></i>
+        cartItemsContainer.innerHTML = this.items.map(item => {
+            let itemTotal = item.price * item.quantity;
+            let addOnsHtml = '';
+            
+            // Add add-ons display if any
+            if (item.addOns && Array.isArray(item.addOns) && item.addOns.length > 0) {
+                const addOnsTotal = item.addOns.reduce((sum, addon) => {
+                    return sum + (addon.price * addon.quantity);
+                }, 0);
+                itemTotal += addOnsTotal * item.quantity;
+                
+                addOnsHtml = `
+                    <div class="cart-item-addons">
+                        <div style="font-size: 0.85rem; color: #7d6c4e; margin-top: 5px; margin-bottom: 3px;">
+                            <i class="fas fa-star"></i> Add-ons:
+                        </div>
+                        ${item.addOns.map(addon => `
+                            <div style="font-size: 0.8rem; color: #666; margin-left: 18px;">
+                                ${addon.name} (${addon.quantity}x) - Rs ${(addon.price * addon.quantity).toLocaleString('en-PK')}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="cart-item" data-product-id="${item.id}">
+                    <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${item.displayName || item.name}</div>
+                        <div class="cart-item-price">Rs ${item.price.toLocaleString('en-PK')}</div>
+                        ${item.customRequest ? `<div class="cart-item-custom"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
+                        ${addOnsHtml}
+                        <div class="cart-item-quantity">
+                            <button class="qty-btn" onclick="window.cart.updateQuantity(${item.id}, ${item.quantity - 1})">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span>${item.quantity}</span>
+                            <button class="qty-btn" onclick="window.cart.updateQuantity(${item.id}, ${item.quantity + 1})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <button class="remove-item-btn" onclick="window.cart.removeItem(${item.id})">
+                            <i class="fas fa-trash"></i> Remove
                         </button>
                     </div>
-                    <button class="remove-item-btn" onclick="window.cart.removeItem(${item.id})">
-                        <i class="fas fa-trash"></i> Remove
-                    </button>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Update cart total

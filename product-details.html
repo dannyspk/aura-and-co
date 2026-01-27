@@ -416,6 +416,205 @@
             margin-top: 5px;
         }
 
+        /* Add-Ons Section */
+        .addons-section {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px dashed #c9a66b;
+        }
+
+        .addons-title {
+            font-size: 1.2rem;
+            color: #7d6c4e;
+            margin: 0 0 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .addons-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0 0 20px 0;
+        }
+
+        .addons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .addon-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .addon-card:hover {
+            border-color: #c9a66b;
+            box-shadow: 0 4px 12px rgba(201, 166, 107, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .addon-card.selected {
+            border-color: #c9a66b;
+            background: #fff9f0;
+        }
+
+        .addon-image-wrapper {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .addon-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .addon-placeholder {
+            font-size: 3rem;
+            color: #999;
+        }
+
+        .addon-info {
+            text-align: center;
+        }
+
+        .addon-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .addon-description {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .addon-price {
+            color: #c9a66b;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .addon-stock {
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .addon-quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .addon-qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #c9a66b;
+            background: white;
+            color: #c9a66b;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .addon-qty-btn:hover:not(:disabled) {
+            background: #c9a66b;
+            color: white;
+        }
+
+        .addon-qty-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .addon-qty {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .selected-addons-summary {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .selected-addons-summary h4 {
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .selected-addon-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .selected-addon-item:last-child {
+            border-bottom: none;
+        }
+
+        .selected-addon-name {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .selected-addon-price {
+            font-size: 0.9rem;
+            color: #c9a66b;
+            font-weight: 600;
+        }
+
+        /* Mobile Responsive for Add-Ons */
+        @media (max-width: 768px) {
+            .addons-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .addon-image-wrapper {
+                height: 120px;
+            }
+
+            .addons-section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .addons-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Action Buttons */
         .product-actions {
             display: flex;
@@ -921,6 +1120,15 @@
                             </div>
                         </div>
 
+                        <!-- Add-Ons Section (for customised jewellery only) -->
+                        <div id="addOnsSection" class="addons-section" style="display: none;">
+                            <h3 class="addons-title"><i class="fas fa-plus-circle"></i> Add Charms</h3>
+                            <p class="addons-subtitle">Personalize your jewellery with beautiful charms</p>
+                            <div id="addOnsList" class="addons-grid">
+                                <!-- Add-ons will be loaded here -->
+                            </div>
+                        </div>
+
                         <!-- Action Buttons -->
                         <div class="product-actions">
                             <button class="btn-add-cart" onclick="addToCart(${product.id})">
@@ -1007,6 +1215,138 @@
             }
         }
 
+        // Add-ons functionality
+        let selectedAddOns = {}; // {addonId: {addon, quantity}}
+
+        async function loadAddOns(category) {
+            // Only load add-ons for customised jewellery
+            if (category.toLowerCase() !== 'customised jewellery') {
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3001/api/add-ons?applicable_to=customised jewellery');
+                const data = await response.json();
+
+                if (data.success && data.addOns && data.addOns.length > 0) {
+                    displayAddOns(data.addOns);
+                    document.getElementById('addOnsSection').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading add-ons:', error);
+            }
+        }
+
+        function displayAddOns(addOns) {
+            const container = document.getElementById('addOnsList');
+            
+            container.innerHTML = addOns.map(addon => `
+                <div class="addon-card" id="addon-${addon.id}" onclick="toggleAddon(${addon.id})">
+                    <div class="addon-image-wrapper">
+                        ${addon.image_url 
+                            ? `<img src="${addon.image_url}" alt="${addon.name}" class="addon-image">`
+                            : `<span class="addon-placeholder">✨</span>`
+                        }
+                    </div>
+                    <div class="addon-info">
+                        <div class="addon-name">${addon.name}</div>
+                        ${addon.description ? `<div class="addon-description">${addon.description}</div>` : ''}
+                        <div class="addon-price">Rs ${addon.price.toLocaleString('en-PK')}</div>
+                        ${addon.stock_quantity !== null ? `<div class="addon-stock">${addon.stock_quantity} in stock</div>` : ''}
+                    </div>
+                    <div class="addon-quantity-selector" onclick="event.stopPropagation();">
+                        <button class="addon-qty-btn" onclick="changeAddonQuantity(${addon.id}, -1)" ${!selectedAddOns[addon.id] ? 'disabled' : ''}>-</button>
+                        <span class="addon-qty">${selectedAddOns[addon.id]?.quantity || 0}</span>
+                        <button class="addon-qty-btn" onclick="changeAddonQuantity(${addon.id}, 1)" 
+                            ${addon.stock_quantity !== null && selectedAddOns[addon.id]?.quantity >= addon.stock_quantity ? 'disabled' : ''}>+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleAddon(addonId) {
+            if (!selectedAddOns[addonId]) {
+                // Find the addon data
+                const addonCard = document.getElementById(`addon-${addonId}`);
+                changeAddonQuantity(addonId, 1);
+            }
+        }
+
+        function changeAddonQuantity(addonId, change) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Get all add-ons (fetch from window or refetch)
+            const addonCards = document.querySelectorAll('.addon-card');
+            let addon = null;
+            
+            addonCards.forEach(card => {
+                if (card.id === `addon-${addonId}`) {
+                    const name = card.querySelector('.addon-name').textContent;
+                    const priceText = card.querySelector('.addon-price').textContent;
+                    const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+                    const stockText = card.querySelector('.addon-stock')?.textContent;
+                    const stock = stockText ? parseInt(stockText.match(/\d+/)[0]) : null;
+                    
+                    addon = {
+                        id: addonId,
+                        name: name,
+                        price: price,
+                        stock_quantity: stock
+                    };
+                }
+            });
+
+            if (!addon) return;
+
+            // Initialize if not exists
+            if (!selectedAddOns[addonId]) {
+                selectedAddOns[addonId] = { addon, quantity: 0 };
+            }
+
+            // Update quantity
+            const newQuantity = selectedAddOns[addonId].quantity + change;
+            
+            if (newQuantity < 0) return;
+            if (newQuantity === 0) {
+                delete selectedAddOns[addonId];
+            } else if (addon.stock_quantity === null || newQuantity <= addon.stock_quantity) {
+                selectedAddOns[addonId].quantity = newQuantity;
+            } else {
+                return; // Don't exceed stock
+            }
+
+            // Refresh display
+            const container = document.getElementById('addOnsList');
+            const addonCards2 = container.querySelectorAll('.addon-card');
+            addonCards2.forEach(card => {
+                const id = parseInt(card.id.replace('addon-', ''));
+                const qtySpan = card.querySelector('.addon-qty');
+                const minusBtn = card.querySelectorAll('.addon-qty-btn')[0];
+                const plusBtn = card.querySelectorAll('.addon-qty-btn')[1];
+                
+                if (qtySpan) {
+                    qtySpan.textContent = selectedAddOns[id]?.quantity || 0;
+                }
+                
+                if (selectedAddOns[id]) {
+                    card.classList.add('selected');
+                    minusBtn.disabled = false;
+                    
+                    // Check stock limit
+                    const stock = addon.stock_quantity;
+                    if (id === addonId && stock !== null && selectedAddOns[id].quantity >= stock) {
+                        plusBtn.disabled = true;
+                    } else if (id === addonId) {
+                        plusBtn.disabled = false;
+                    }
+                } else if (id === addonId) {
+                    card.classList.remove('selected');
+                    minusBtn.disabled = true;
+                }
+            });
+        }
+
         // Add to cart
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
@@ -1025,8 +1365,29 @@
                 if (customRequest) {
                     productToAdd.customRequest = customRequest;
                 }
+
+                // Add selected add-ons if any
+                if (Object.keys(selectedAddOns).length > 0) {
+                    productToAdd.addOns = Object.values(selectedAddOns).map(item => ({
+                        id: item.addon.id,
+                        name: item.addon.name,
+                        price: item.addon.price,
+                        quantity: item.quantity
+                    }));
+                }
                 
                 window.cart.addItem(productToAdd, quantity);
+
+                // Reset add-ons selection
+                selectedAddOns = {};
+                const addOnCards = document.querySelectorAll('.addon-card');
+                addOnCards.forEach(card => {
+                    card.classList.remove('selected');
+                    const qtySpan = card.querySelector('.addon-qty');
+                    if (qtySpan) qtySpan.textContent = '0';
+                    const buttons = card.querySelectorAll('.addon-qty-btn');
+                    if (buttons[0]) buttons[0].disabled = true; // minus button
+                });
                 
                 // Show success message
                 const btn = event.target.closest('button');
@@ -1130,6 +1491,13 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async function() {
             await loadProductDetails();
+            
+            // Load add-ons if this is a customised jewellery product
+            const product = products.find(p => p.id === productId);
+            if (product && product.category) {
+                await loadAddOns(product.category);
+            }
+            
             window.cart.updateCartCount();
 
             // Cart icon click

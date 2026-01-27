@@ -199,17 +199,44 @@ function displayOrderSummary() {
     const checkoutItems = document.getElementById('checkoutItems');
     
     // Render items
-    checkoutItems.innerHTML = cart.items.map(item => `
-        <div class="checkout-item">
-            <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Crect fill=%27%238B7355%27 width=%2780%27 height=%2780%27/%3E%3Ctext fill=%27%23ffffff%27 font-family=%27Arial%27 font-size=%2716%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EAura%3C/text%3E%3C/svg%3E'">
-            <div class="item-details">
-                <div class="item-name">${item.name}</div>
-                <div class="item-quantity">Qty: ${item.quantity}</div>
-                ${item.customRequest ? `<div class="item-custom-request"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
+    checkoutItems.innerHTML = cart.items.map(item => {
+        let itemTotal = item.price * item.quantity;
+        let addOnsHtml = '';
+        
+        // Display add-ons from cart item if any
+        if (item.addOns && Array.isArray(item.addOns) && item.addOns.length > 0) {
+            const addOnsTotal = item.addOns.reduce((sum, addon) => {
+                return sum + (addon.price * addon.quantity);
+            }, 0);
+            itemTotal += addOnsTotal * item.quantity;
+            
+            addOnsHtml = `
+                <div class="item-addons" style="margin-top: 5px; padding-left: 10px; border-left: 2px solid #c9a66b;">
+                    <div style="font-size: 0.85rem; color: #7d6c4e; margin-bottom: 3px;">
+                        <i class="fas fa-star"></i> Add-ons:
+                    </div>
+                    ${item.addOns.map(addon => `
+                        <div style="font-size: 0.8rem; color: #666;">
+                            ${addon.name} (${addon.quantity}x) - Rs ${(addon.price * addon.quantity).toLocaleString('en-PK')}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        return `
+            <div class="checkout-item">
+                <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Crect fill=%27%238B7355%27 width=%2780%27 height=%2780%27/%3E%3Ctext fill=%27%23ffffff%27 font-family=%27Arial%27 font-size=%2716%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EAura%3C/text%3E%3C/svg%3E'">
+                <div class="item-details">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-quantity">Qty: ${item.quantity}</div>
+                    ${item.customRequest ? `<div class="item-custom-request"><i class="fas fa-edit"></i> ${item.customRequest}</div>` : ''}
+                    ${addOnsHtml}
+                </div>
+                <div class="item-price">Rs ${itemTotal.toLocaleString('en-PK')}</div>
             </div>
-            <div class="item-price">Rs ${(item.price * item.quantity).toLocaleString('en-PK')}</div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
     // Update summary totals using the new function
     updateOrderSummary();
@@ -409,22 +436,26 @@ async function placeOrder() {
         const orderNumber = 'AUR' + Date.now().toString().slice(-8);
         
         // Prepare order data
-        const subtotal = cart.getTotal();
-        const addOnsTotal = getAddOnsTotal();
+        const subtotal = cart.getTotal(); // This now includes add-ons from cart items
         const shipping = calculateShipping(orderData.shipping.city);
         const discount = appliedPromo ? appliedPromo.discount : 0;
-        const total = subtotal + addOnsTotal + shipping - discount;
+        const total = subtotal + shipping - discount;
         
-        // Format add-ons for database
-        const addOnsArray = Object.keys(selectedAddOns).map(addonId => {
-            const { addon, quantity } = selectedAddOns[addonId];
-            return {
-                id: addon.id,
-                name: addon.name,
-                price: addon.price,
-                quantity: quantity,
-                total: addon.price * quantity
-            };
+        // Collect all add-ons from cart items
+        const addOnsArray = [];
+        cart.items.forEach(item => {
+            if (item.addOns && Array.isArray(item.addOns)) {
+                item.addOns.forEach(addon => {
+                    // Multiply addon quantity by product quantity
+                    addOnsArray.push({
+                        id: addon.id,
+                        name: addon.name,
+                        price: addon.price,
+                        quantity: addon.quantity * item.quantity,
+                        total: addon.price * addon.quantity * item.quantity
+                    });
+                });
+            }
         });
         
         const order = {
@@ -622,36 +653,19 @@ function showPromoMessage(message, type) {
 }
 
 function updateOrderSummary() {
-    const subtotal = cart.getTotal();
-    const addOnsTotal = getAddOnsTotal();
+    const subtotal = cart.getTotal(); // Now includes add-ons from cart items
     const city = document.getElementById('city')?.value;
     const shipping = calculateShipping(city);
     const discount = appliedPromo ? appliedPromo.discount : 0;
     const tax = 0;
-    const total = subtotal + addOnsTotal + shipping - discount + tax;
+    const total = subtotal + shipping - discount + tax;
     
     document.getElementById('summarySubtotal').textContent = `Rs ${subtotal.toLocaleString('en-PK')}`;
     
-    // Show add-ons row if any selected
-    let addOnsRowHtml = '';
-    if (addOnsTotal > 0) {
-        const addOnsCount = Object.keys(selectedAddOns).length;
-        addOnsRowHtml = `
-            <div class="summary-row">
-                <span>Add-ons (${addOnsCount} item${addOnsCount > 1 ? 's' : ''})</span>
-                <span>Rs ${addOnsTotal.toLocaleString('en-PK')}</span>
-            </div>
-        `;
-    }
-    
-    // Update or add add-ons row
+    // Remove old add-ons row if exists (no longer needed as add-ons are in subtotal)
     const existingAddOnsRow = document.querySelector('.summary-row-addons');
     if (existingAddOnsRow) {
         existingAddOnsRow.remove();
-    }
-    if (addOnsTotal > 0) {
-        const shippingRow = document.querySelector('.summary-row:nth-of-type(2)');
-        shippingRow.insertAdjacentHTML('afterend', `<div class="summary-row summary-row-addons"><span>Add-ons (${Object.keys(selectedAddOns).length})</span><span>Rs ${addOnsTotal.toLocaleString('en-PK')}</span></div>`);
     }
     
     document.getElementById('summaryShipping').textContent = shipping === 0 ? 'FREE' : `Rs ${shipping.toLocaleString('en-PK')}`;
